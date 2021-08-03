@@ -69,13 +69,13 @@ let isValidUser = async (user) => {
     try {
         let isUserValid = false
         let fetchedUser = null
-        if(user.isAdmin){
+        if(user.isAdmin==1){
             fetchedUser=await admin.findOne({
                 where:{
                 adminId:user.userId
                 }
             })
-        }
+        }else{
         fetchedUser =await User.findOne({
 
            
@@ -84,6 +84,7 @@ let isValidUser = async (user) => {
             }
 
         })
+    }
         if (fetchedUser) {
 
             isUserValid = true
@@ -118,11 +119,12 @@ let authenticateRequest = async (req, res, next) => {
             if (isUserValid) {
                 req.user = user
                 req.user.uuid = userData.uuid
-                req.user.isAdmin=userData.isAdmin
+                req.isAdmin=userData.isAdmin
                 return next()
             }else {
                 const err = new Error('Invalid user id')
                 next(err)
+                throw err
               }
 
 
