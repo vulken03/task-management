@@ -315,15 +315,13 @@ const getAllTasks = async (startDate, endDate) => {
                 }
 
             }, 
-              attributes: ['task_name', 'complete_status', 'start_date', 'end_date'
-              //[sequelize.fn('COUNT', sequelize.col('*')), 'n_tasks']
-            ],
+              attributes: [[sequelize.fn('COUNT','*'), 'n_tasks'],'User_Registration.username'],
 
             include: {
                 model: user,
-                attributes: ['username']
+                attributes: []
             },
-            //group: [sequelize.col(createTask.userId)],
+            group:'task.userId',
             raw:true
         })
 
