@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
   const task = sequelize.define('task', {
-    taskId:{
+    task_id:{
 
       type:Sequelize.INTEGER,
       primaryKey:true,
@@ -11,25 +11,29 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull:false
     },
-    complete_status: {
+    is_complete: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue:0
+    },
+    completed_on:{
+    type: Sequelize.DATE
     },
     start_date: {
       type: Sequelize.DATE,
       allowNull: false
     },
     end_date: {
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
+      allowNull: false
     },
-    userId: {
+    user_id: {
       type: Sequelize.INTEGER,
       allowNull: false
     }
   })
   task.associate=(models)=>{
-    task.belongsTo(models.User_Registration,{foreignKey:'userId',onDelete:'CASCADE',onUpdate:'CASCADE'})
+    task.belongsTo(models.user,{foreignKey:'user_id',onDelete:'CASCADE',onUpdate:'CASCADE'})
   }
 
   return task

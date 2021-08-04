@@ -2,7 +2,7 @@ module.exports=(sequelize,Sequelize)=>{
 
  const admin_module=sequelize.define('admin_module',{
 
-    adminId:{
+    admin_id:{
         type:Sequelize.INTEGER,
         primaryKey:true,
         autoIncrement:true,

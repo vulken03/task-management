@@ -1,18 +1,22 @@
-const newTaskSchema={
+const newUserSchema={
     type:'object',
     properties:{
-        task_name:{
+        username:{
             type:'string'
         },
-        start_date:{
+        email:{
             type:'string'
         },
-        end_date:{
+        phoneno:{
+
+            type:'integer'
+        },
+        password:{
             type:'string'
         }
     },
     required:[
-        'task_name','start_date','end_date'
+        'username','password'
     ]
 }
 
@@ -29,6 +33,6 @@ const getTaskSchema={
 }
 
 module.exports={
-    newTaskSchema,
+    newUserSchema,
     getTaskSchema
 }

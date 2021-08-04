@@ -4,7 +4,7 @@ const { constants } = require('../utils/constant')
 //const moment=require('moment')
 const db = require('../models')
 const Session = db.Session
-const User = db.User_Registration
+const User = db.user
 const admin=db.admin_module
 
 let verifyJWT = async (req) => {
@@ -23,7 +23,7 @@ let verifyJWT = async (req) => {
 
     } catch (err) {
         console.log('err', err)
-        
+        throw err
     }
 
 }
@@ -72,7 +72,7 @@ let isValidUser = async (user) => {
         if(user.isAdmin==1){
             fetchedUser=await admin.findOne({
                 where:{
-                adminId:user.userId
+                admin_id:user.userId
                 }
             })
         }else{
@@ -80,7 +80,7 @@ let isValidUser = async (user) => {
 
            
             where: {
-                userId: user.userId
+                user_id: user.userId
             }
 
         })
@@ -134,6 +134,7 @@ let authenticateRequest = async (req, res, next) => {
         }
     } catch (error) {
         console.log('error', error)
+        throw error
     }
 }
 
