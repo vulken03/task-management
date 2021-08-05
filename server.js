@@ -3,11 +3,13 @@ const bodyParser=require('body-parser')
 const api=require('./routes')
 const app=express()
 const db=require('./models')
+const{errorHandler}=require('./utils/error')
 const {authenticateRequest}=require('./middleware/sessionMiddleware')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
 app.use('/todo',api)
 app.use(authenticateRequest)
+app.use(errorHandler)
 const PORT=8085
 
 
@@ -18,3 +20,5 @@ db.sequelize.sync({ alter: false }).then(() => {
 }).catch((err) => {
   console.log('Error while syncing database...',err)
 })
+
+

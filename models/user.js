@@ -8,7 +8,7 @@ module.exports = (sequelize, Sequelize) => {
       notNull:true
     },
     username: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(20),
       allowNull: false,
       unique:true
     },
@@ -20,12 +20,12 @@ module.exports = (sequelize, Sequelize) => {
       },
     phoneno:{
 
-      type: Sequelize.STRING,
+      type: Sequelize.BIGINT(10),
       allowNull: false,
       unique:true
     },
     password: {
-    type: Sequelize.STRING,
+    type: Sequelize.STRING(10),
     allowNull: false
     }
   })

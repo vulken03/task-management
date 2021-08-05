@@ -1,27 +1,27 @@
-const newUserSchema={
-    type:'object',
-    properties:{
-        username:{
-            type:'string'
-        },
-        email:{
-            type:'string'
-        },
-        phoneno:{
-
-            type:'integer'
-        },
-        password:{
-            type:'string'
-        }
+const newUserSchema = {
+  type: "object",
+  properties: {
+    username: {
+      type: "string",
+      maxLength:20
     },
-    required:[
-        'username','password'
-    ]
-}
+    email: {
+      type: "string",
+      format: "email"
 
+    },
+    phoneno: {
+      type: "integer",
+      pattern: "^[0-9()\-\.\s]+$" ,
+      maxLength:20
+    },
+    password: {
+      type: "string",
+    },
+  },
+  required: ["username", "password"],
+};
 
-
-module.exports={
-    newUserSchema
-}
+module.exports = {
+  newUserSchema,
+};

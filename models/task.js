@@ -8,8 +8,9 @@ module.exports = (sequelize, Sequelize) => {
       notNull:true
     },
     task_name: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(20),
       allowNull:false
+
     },
     is_complete: {
       type: Sequelize.BOOLEAN,

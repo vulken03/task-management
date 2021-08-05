@@ -2,13 +2,16 @@ const newTaskSchema={
     type:'object',
     properties:{
         task_name:{
-            type:'string'
+            type:'string',
+            maxLength:20
         },
         start_date:{
-            type:'string'
+            type:'string',
+            format:'date-time'
         },
         end_date:{
-            type:'string'
+            type:'string',
+            format:'date-time'
         }
     },
     required:[
@@ -20,12 +23,17 @@ const getTaskSchema={
     type:'object',
     properties:{
         start_date:{
-            type:'string'
+            type:'string',
+            format:'date'
         },
         end_date:{
-            type:'string' 
+            type:'string',
+            format:'date' 
         }
-    }
+    },
+    required:[
+        'start_date','end_date'
+    ]
 }
 
 module.exports={

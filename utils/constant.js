@@ -12,6 +12,7 @@ const constants={
       },
 
       errors: {
+        user:'user is already exists with same username',
         invalidLogin: 'Wrong username or password',
         sessionExpired: 'Session Expired. Please login again',
         failedLoggingout: 'Failed to logout user',
@@ -37,6 +38,7 @@ const constants={
         failedUnassignment: 'Failed to unassign company to the employee',
         AlreadyExist: 'already exist with the same name',
         departmentAlreadyExist: 'Department is already exist with the same name'
+
       },
 
 
