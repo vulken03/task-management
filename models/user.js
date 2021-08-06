@@ -36,3 +36,4 @@ module.exports = (sequelize, Sequelize) => {
 
   return user
 }
+// TODO - Create hash with salt password using sequelize hooks beforeCreate & beforeUpdate
