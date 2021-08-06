@@ -69,7 +69,7 @@ const generateJwtToken = (user, uuid, isAdmin) => {
   });
 };
 
-const login = (userData) => {
+const login = (userData) => { // TODO: Use async await in this function instead of raw promises!
   return new Promise((resolve, reject) => {
     let isSuccessful = false;
     let token = "";

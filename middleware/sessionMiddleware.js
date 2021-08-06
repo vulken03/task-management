@@ -11,12 +11,13 @@ let verifyJWT = async (req) => {
   try {
     let token = req.headers["authorization"];
 
-    let userData = jwt.verify(token, "onlinewebtutorkey", {
+    let userData = jwt.verify(token, "onlinewebtutorkey", { // TODO: read secret from config file!
       algorithms: ["HS384"],
     });
     if (userData) {
       return userData;
     }
+    // TODO: return appropriate error or flag when userData is empty/null
   } catch (err) {
     console.log("err", err);
     throw err;
@@ -75,6 +76,7 @@ let isValidUser = async (user) => {
         },
       });
     }
+    // TODO: usage of raw: true missing when performing only read operation!!
     if (fetchedUser) {
       isUserValid = true;
     }
@@ -111,7 +113,7 @@ let authenticateRequest = async (req, res, next) => {
       } else {
         const err = new Error("Invalid user id");
         next(err);
-        throw err;
+        throw err; // TODO: Unnecessary use of throw, remove this! next(err) is enough..
       }
     } else {
       const error = new Error("Invalid authorization");

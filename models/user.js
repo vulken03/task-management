@@ -13,19 +13,19 @@ module.exports = (sequelize, Sequelize) => {
       unique:true
     },
     email:{
-      type: Sequelize.STRING,
+      type: Sequelize.STRING, // TODO: standard char limit of email address should be given here!
       allowNull: false,
       unique:true,
       isEmail:true
       },
     phoneno:{
 
-      type: Sequelize.BIGINT(10),
+      type: Sequelize.BIGINT(10), // TODO: Use varchar(string) and allow user to enter +91/+1 country code along with + symbol
       allowNull: false,
-      unique:true
+      unique:true // TODO: remove uniquenesss
     },
     password: {
-    type: Sequelize.STRING(10),
+    type: Sequelize.STRING(10), // TODO: Store the password securly in encrypted format using crypto with salt & hash!
     allowNull: false
     }
   })
