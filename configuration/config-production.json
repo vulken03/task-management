@@ -1,0 +1,13 @@
+{
+    "host": "localhost",
+    "port": "8000",
+    "database": {
+        "name": "shop",
+        "username": "root",
+        "password": "Letmein@123",
+        "dialect": "mysql"
+    },
+    "jwt": {
+        "key": "encrypt@098"
+    }
+}

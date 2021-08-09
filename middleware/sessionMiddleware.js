@@ -1,8 +1,9 @@
-const moment = require("moment");
-const jwt = require("jsonwebtoken");
-const { constants } = require("../utils/constant");
+const moment = require("moment")
+const jwt = require("jsonwebtoken")
+const { constants } = require("../utils/constant")
 //const moment=require('moment')
-const db = require("../models");
+const db = require("../database")
+const config=require('../configuration/config')
 const Session = db.Session;
 const User = db.user;
 const admin = db.admin_module;
@@ -11,11 +12,15 @@ let verifyJWT = async (req) => {
   try {
     let token = req.headers["authorization"];
 
-    let userData = jwt.verify(token, "onlinewebtutorkey", { // TODO: read secret from config file!
+    let userData = jwt.verify(token,config.get('jwt.key'), {
+      // TODO: read secret from config file!
       algorithms: ["HS384"],
     });
     if (userData) {
       return userData;
+    } else {
+      const error = new Error("userData not found");
+      throw error;
     }
     // TODO: return appropriate error or flag when userData is empty/null
   } catch (err) {
@@ -74,6 +79,7 @@ let isValidUser = async (user) => {
         where: {
           user_id: user.userId,
         },
+        raw: true
       });
     }
     // TODO: usage of raw: true missing when performing only read operation!!
@@ -92,11 +98,13 @@ let isValidUser = async (user) => {
 
 let authenticateRequest = async (req, res, next) => {
   if (constants.insecureRoutes.includes(req.url)) {
+
     return next();
   }
 
   try {
     if (req.headers.authorization) {
+     
       let userData = await verifyJWT(req);
 
       let isSessionValid = await isValidSession(userData.uuid);
@@ -112,8 +120,7 @@ let authenticateRequest = async (req, res, next) => {
         return next();
       } else {
         const err = new Error("Invalid user id");
-        next(err);
-        throw err; // TODO: Unnecessary use of throw, remove this! next(err) is enough..
+        next(err); // TODO: Unnecessary use of throw, remove this! next(err) is enough..
       }
     } else {
       const error = new Error("Invalid authorization");
@@ -126,5 +133,5 @@ let authenticateRequest = async (req, res, next) => {
 };
 
 module.exports = {
-  authenticateRequest,
+  authenticateRequest
 };

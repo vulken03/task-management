@@ -1,7 +1,7 @@
 
 
 const constants={
-    insecureRoutes:['todo/user_login','todo/user_registration'],
+    insecureRoutes:['/user_login','/user_registration','/admin_login'],
     responseCodes: {
         success: 200,
         error: 500

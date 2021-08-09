@@ -1,11 +1,13 @@
-const db = require("../../models");
+const db = require("../../database");
 const user = db.user;
 const userLogin = db.Session;
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
 const { constants } = require("../../utils/constant");
+const { encryptPassword, validatePassword } = require("../../utils/encrypt")
+const config=require('../../configuration/config')
 const user_register = async (userData) => {
-  //console.log('userData', userData)
+  console.log('userData', userData.username)
   try {
     const users = await user.findOne({
       where: {
@@ -58,7 +60,7 @@ const generateJwtToken = (user, uuid, isAdmin) => {
         username,
         isAdmin,
       },
-      "onlinewebtutorkey",
+      config.get('jwt.key'),
       {
         expiresIn: "24h",
         algorithm: "HS384",
@@ -69,59 +71,107 @@ const generateJwtToken = (user, uuid, isAdmin) => {
   });
 };
 
-const login = (userData) => { // TODO: Use async await in this function instead of raw promises!
-  return new Promise((resolve, reject) => {
-    let isSuccessful = false;
-    let token = "";
+const login = async (userData) => {
+  // TODO: Use async await in this function instead of raw promises!
+  //   return new Promise((resolve, reject) => {
+  //     let isSuccessful = false;
+  //     let token = "";
 
-    user
-      .findOne({
-        where: {
-          username: userData.username,
-        },
-      })
-      .then((users) => {
-        if (users) {
-          if (userData.password === users.password) {
-            isSuccessful = true;
-            createSession(users)
-              .then((session) => {
-                generateJwtToken(users, session.uuid, session.is_admin)
-                  .then((accessToken) => {
-                    token = accessToken;
+  //     user
+  //       .findOne({
+  //         where: {
+  //           username: userData.username,
+  //         },
+  //       })
+  //       .then((users) => {
+  //         if (users) {
+  //           const isValidate = validatePassword(
+  //             userData.password,
+  //             users.password.split(":")[1],
+  //             users.password.split(":")[1]
+  //           );
+  //           if (isValidate) {
+  //             isSuccessful = true;
+  //             createSession(users)
+  //               .then((session) => {
+  //                 generateJwtToken(users, session.uuid, session.is_admin)
+  //                   .then((accessToken) => {
+  //                     token = accessToken;
 
-                    resolve({
-                      isSuccessful,
-                      token,
-                    });
-                  })
-                  .catch((err) => {
-                    console.log("err", err);
-                    reject(err);
-                  });
-              })
-              .catch((err) => {
-                console.log("err", err);
-                reject(err);
-              });
+  //                     resolve({
+  //                       isSuccessful,
+  //                       token,
+  //                     });
+  //                   })
+  //                   .catch((err) => {
+  //                     console.log("err", err);
+  //                     reject(err);
+  //                   });
+  //               })
+  //               .catch((err) => {
+  //                 console.log("err", err);
+  //                 reject(err);
+  //               });
+  //           } else {
+  //             resolve({
+  //               isSuccessful,
+  //               token,
+  //             });
+  //           }
+  //         } else {
+  //           resolve({
+  //             isSuccessful,
+  //             token,
+  //           });
+  //         }
+  //       })
+  //       .catch((err) => {
+  //         throw err;
+  //       });
+  //   });
+  try {
+    let users = await user.findOne({
+      where: {
+        username: userData.username
+      },
+    });
+
+    if (users) {
+      const isValidate = validatePassword(
+        userData.password,
+        users.password.split(":")[1],
+        users.password.split(":")[1]
+      );
+      if (isValidate) {
+        const session = await createSession(users);
+        if (session) {
+          const jwt = await generateJwtToken(
+            users,
+            session.uuid,
+            session.is_admin
+          );
+          if (jwt) {
+            return jwt;
           } else {
-            resolve({
-              isSuccessful,
-              token,
-            });
+            const error = new Error("error while generating jwt");
+            throw error;
           }
         } else {
-          resolve({
-            isSuccessful,
-            token,
-          });
+          const error = new Error("error while creating session");
+          throw error;
         }
-      }).catch((err)=>{
-          throw err
-      })
-  });
+      } else {
+        const error = new Error("you entered wrong password");
+        throw error;
+      }
+    } else {
+      const error = new Error("user not found with this username");
+      throw error;
+    }
+  } catch (error) {
+    throw error;
+  }
 };
-
 const logout = async (uuid) => {
   try {
     const loginData = await userLogin.findOne({
@@ -139,17 +189,14 @@ const logout = async (uuid) => {
           },
         }
       );
-      return true
+      return true;
+    } else {
+      const err = new Error(constants.errors.failedLoggingout);
+      throw err;
     }
-
-    else{
-       const err=new Error(constants.errors.failedLoggingout)
-        throw err
-    }
-
   } catch (error) {
     console.log("error", error);
-    throw error
+    throw error;
   }
 };
 

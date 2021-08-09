@@ -1,4 +1,4 @@
-const db = require("../../models");
+const db = require("../../database");
 const user = db.user;
 const userLogin = db.Session;
 const Task = db.task;
@@ -7,8 +7,8 @@ const moment = require("moment");
 const { Op } = require("sequelize");
 //const excel = require('exceljs')
 const sequelize = require("sequelize");
-const admin = db.admin_module;
-
+const admin = db.admin_module
+const config=require('../../configuration/config')
 const createSessionAdmin = (admin) => {
   return new Promise((resolve, reject) => {
     const adminId = admin.admin_id;
@@ -42,7 +42,8 @@ const generateJwtToken = (user, uuid, isAdmin) => {
         username,
         isAdmin,
       },
-      "onlinewebtutorkey",
+      config.get('jwt.key')
+      ,
       {
         expiresIn: "24h",
         algorithm: "HS384",
@@ -127,8 +128,8 @@ const getAllTasks = async (startDate, endDate) => {
       console.log("getall", getAllTaskDetails);
       return getAllTaskDetails;
     } else {
-      const error=new Error('Error while getting data')
-      throw error
+      const error = new Error("Error while getting data");
+      throw error;
     }
   } catch (error) {
     console.log("error", error);
@@ -153,9 +154,9 @@ const logout = async (uuid) => {
         }
       );
       return true;
-    }else{
-        const err=new Error('error while loggedout')
-        throw err
+    } else {
+      const err = new Error("error while loggedout");
+      throw err;
     }
   } catch (error) {
     console.log("error", error);

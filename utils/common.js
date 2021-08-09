@@ -10,7 +10,7 @@ const schemaValidator = (schema, schemaStructure) => {
   if (validationResult.valid) {
     isValid = true;
   } else {
-    //error = new Error("problem while validating data");
+    error = new Error("problem while validating data");
     throw error
   }
   return {
