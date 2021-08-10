@@ -137,7 +137,7 @@ const login = async (userData) => {
       const isValidate = validatePassword(
         userData.password,
         users.password.split(":")[1],
-        users.password.split(":")[1]
+        users.password.split(":")[1] // TODO: correct this
       );
       if (isValidate) {
         const session = await createSession(users);
@@ -178,13 +178,8 @@ const logout = async (uuid) => {
     });
 
     if (loginData) {
-      await _DB.Session.update(
-        { is_loggedout: 1 },
-        {
-          where: {
-            uuid,
-          },
-        }
+      await loginData.update(
+        { is_loggedout: 1 }
       );
       return true;
     } else {

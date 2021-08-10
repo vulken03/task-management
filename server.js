@@ -7,8 +7,6 @@ const middleware = require("./middleware");
 
 const app = express();
 
-app.use(express.json());
-
 middleware(app);
 
 api(app);

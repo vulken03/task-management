@@ -1,8 +1,22 @@
 const { constants } = require('./constant')
 
 exports.errorHandler = (err, req, res, next) => {
-  res.status(constants.responseCodes.error).json({
-    message: constants.responseMessage.error,
-    error: err.message
-  })
+  const resp_obj = {
+    message: constants.responseMessage.error
+  }
+  if (process.env.NODE_ENV === 'development') {
+    resp_obj.message = err.message || constants.responseMessage.error
+    resp_obj.error = err
+  }
+  res.status(constants.responseCodes.error).json(resp_obj)
 }
+
+
+/* const module = function() {}
+module.myFunc = () => console.log('My New Func')
+
+module.childFunc = () => {
+  this.myFunc()
+}
+
+module.exports = module */

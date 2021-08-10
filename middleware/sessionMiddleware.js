@@ -5,12 +5,11 @@ const { constants } = require("../utils/constant")
 const config=require('../configuration/config')
 
 
-let verifyJWT = async (req) => {
-  try {
+let verifyJWT = async (req) => { // TODO: pass only those arguments that are needed in the function defination
+  // try {
     let token = req.headers["authorization"];
 
     let userData = jwt.verify(token,config.get('jwt.key'), {
-      // TODO: read secret from config file!
       algorithms: ["HS384"],
     });
     if (userData) {
@@ -19,11 +18,10 @@ let verifyJWT = async (req) => {
       const error = new Error("userData not found");
       throw error;
     }
-    // TODO: return appropriate error or flag when userData is empty/null
-  } catch (err) {
-    console.log("err", err);
-    throw err;
-  }
+  // } catch (err) {
+  //   console.log("err", err);
+  //   throw err;
+  // }
 };
 
 let isValidSession = async (uuid) => {
@@ -61,20 +59,21 @@ let isValidSession = async (uuid) => {
   }
 };
 
-let isValidUser = async (user) => {
+let isValidUser = async ({ isAdmin, userId, ...additional_prop }) => {
   try {
+    // if (additional_prop.new_prop) 
     let isUserValid = false;
     let fetchedUser = null;
-    if (user.isAdmin == 1) {
+    if (isAdmin == 1) {
       fetchedUser = await _DB.admin_module.findOne({
         where: {
-          admin_id: user.userId,
+          admin_id: userId,
         },
       });
     } else {
       fetchedUser = await _DB.user.findOne({
         where: {
-          user_id: user.userId,
+          user_id: userId,
         },
         raw: true
       });
@@ -99,9 +98,9 @@ let authenticateRequest = async (req, res, next) => {
     return next();
   }
 
-  try {
+  try { // TODO: check what happens when there's an error after removing try catch block!
     if (req.headers.authorization) {
-     
+      // throw new Error()
       let userData = await verifyJWT(req);
 
       let isSessionValid = await isValidSession(userData.uuid);
@@ -109,19 +108,22 @@ let authenticateRequest = async (req, res, next) => {
         const error = new Error(constants.errors.isExpired);
         return next(error);
       }
+      if (true) {
+        userData.new_prop = 'abc'
+      }
       let { isUserValid, user } = await isValidUser(userData);
       if (isUserValid) {
         req.user = user;
         req.user.uuid = userData.uuid;
         req.isAdmin = userData.isAdmin;
-        return next();
+        next();
       } else {
-        const err = new Error("Invalid user id");
-        next(err); // TODO: Unnecessary use of throw, remove this! next(err) is enough..
+        next(new Error("Invalid user id"));
       }
     } else {
-      const error = new Error("Invalid authorization");
-      throw error;
+      next(new Error("Invalid authorization"))
+      // const error = new Error("Invalid authorization");
+      // throw error;
     }
   } catch (error) {
     console.log("error", error);
