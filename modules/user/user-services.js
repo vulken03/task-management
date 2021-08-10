@@ -5,8 +5,8 @@ const user_model = require("./user-model");
 //const log_in=require('./todo-model')
 
 const signup = async (req, res, next) => {
-  let user = req.body
-  
+  let user = req.body;
+
   console.log("data", user);
 
   try {

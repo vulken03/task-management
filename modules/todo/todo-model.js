@@ -34,16 +34,12 @@ const update_task = async (userid, taskDetails, taskid) => {
     const taskData = await _DB.task.findOne({
       where: {
         task_id: taskid,
+        user_id: userid,
       },
     });
     if (taskData) {
       if (taskData.user_id == userid && date1 < date2 && date1 >= todayDate) {
-        await _DB.task.update(taskDetails, {
-          where: {
-            task_id: taskid,
-            user_id: userid,
-          },
-        });
+        await taskData.update(taskDetails);
         return true;
       } else {
         const error = new Error(
@@ -66,16 +62,12 @@ const complete_task = async (userid, taskDetails, taskid) => {
     const taskData = await _DB.task.findOne({
       where: {
         task_id: taskid,
+        user_id: userid
       },
     });
     if (taskData) {
       if (taskData.user_id == userid) {
-        await _DB.task.update(taskDetails, {
-          where: {
-            task_id: taskid,
-            user_id: userid,
-          },
-        });
+        await taskData.update(taskDetails)
         return true;
       }
     } else {
@@ -99,11 +91,7 @@ const delete_task = async (userid, taskid) => {
     console.log("taskdata", taskData);
     if (taskData) {
       if (taskData.user_id == userid && taskData.is_complete == false) {
-        await _DB.task.destroy({
-          where: {
-            task_id: taskid,
-          },
-        });
+        await taskData.destroy();
       } else {
         const err = new Error("task is completed");
         throw err;

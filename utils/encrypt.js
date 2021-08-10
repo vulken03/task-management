@@ -9,11 +9,11 @@ const encryptPassword = (password) => {
 };
 
 const validatePassword = (password, passwordHash, salt) => {
-  const hash = bcrypt.hashSync(password, salt)
+  const hash = bcrypt.hashSync(password, salt);
   if (hash === passwordHash) {
-    return true
+    return true;
   } else {
-    return false
+    return false;
   }
 };
 

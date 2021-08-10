@@ -1,54 +1,57 @@
-const fs = require('fs')
-const path = require('path')
-const Sequelize = require('sequelize')
-const config = require('../configuration/config')
+const fs = require("fs");
+const path = require("path");
+const Sequelize = require("sequelize");
+const config = require("../configuration/config");
 
 // db obj
-const db = {}
+const db = {};
 
 // sequelize object
 const sequelize = new Sequelize(
-  config.get('database.name'),
-  config.get('database.username'),
-  config.get('database.password'),
+  config.get("database.name"),
+  config.get("database.username"),
+  config.get("database.password"),
   {
-    dialect: config.get('database.dialect'),
+    dialect: config.get("database.dialect"),
     define: {
       timestamps: false,
-      freezeTableName: true
+      freezeTableName: true,
     },
     pool: {
-      max: 5
+      max: 5,
     },
     benchmark: true,
-    timezone: '+05:30'
+    timezone: "+05:30",
   }
 );
 
 // checking connection
 (async () => {
   try {
-    await sequelize.authenticate()
-    console.log('Connected to the database...')
+    await sequelize.authenticate();
+    console.log("Connected to the database...");
   } catch (err) {
-    console.log('Database connection failed...')
+    console.log("Database connection failed...");
   }
-})()
+})();
 
 // models
-fs.readdirSync(path.join(__dirname, '/../models')).forEach((modelFile) => {
-  const model = require(path.join(__dirname, '/../models/', modelFile))(sequelize, Sequelize)
-  db[model.getTableName()] = model
-})
+fs.readdirSync(path.join(__dirname, "/../models")).forEach((modelFile) => {
+  const model = require(path.join(__dirname, "/../models/", modelFile))(
+    sequelize,
+    Sequelize
+  );
+  db[model.getTableName()] = model;
+});
 
 // associations
 for (const model in db) {
-  if ('associate' in db[model]) {
-    db[model].associate(db)
+  if ("associate" in db[model]) {
+    db[model].associate(db);
   }
 }
 
-db.sequelize = sequelize
-db.Sequelize = Sequelize
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
-module.exports = db
+module.exports = db;

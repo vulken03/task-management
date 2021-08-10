@@ -3,38 +3,38 @@ const newUserSchema = {
   properties: {
     username: {
       type: "string",
-      maxLength:20
+      maxLength: 20,
     },
     email: {
       type: "string",
-      format: "email"
-
+      format: "email",
     },
     phoneno: {
       type: "string",
-      pattern: "^[+]?[(]?[0-9]{3}[)]?[-\\s.]?[0-9]{3}[-\\s.]?[0-9]{4,6}$" ,
-      maxLength:20
+      pattern: "^[+]?[(]?[0-9]{3}[)]?[-\\s.]?[0-9]{3}[-\\s.]?[0-9]{4,6}$",
+      maxLength: 20,
     },
     password: {
-      type: "string"
+      type: "string",
     },
   },
-  required: ["username", "password","email","phoneno"],
-}
+  required: ["username", "password", "email", "phoneno"],
+};
 
-const newLoginSchema={
+const newLoginSchema = {
   type: "object",
   properties: {
     username: {
       type: "string",
-      maxLength:20
-    },password: {
+      maxLength: 20,
+    },
+    password: {
       type: "string",
     },
-    required:['username','password']
-  }
-} 
+    required: ["username", "password"],
+  },
+};
 module.exports = {
   newUserSchema,
-  newLoginSchema
+  newLoginSchema,
 };

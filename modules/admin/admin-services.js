@@ -14,7 +14,7 @@ const admin_login = async (req, res, next) => {
       user_data.newUserSchema
     );
     if (!isValid) {
-      next(error)
+      next(error);
     }
     await admin_model
       .Adminlogin(admin)
@@ -25,17 +25,17 @@ const admin_login = async (req, res, next) => {
             token,
           });
         } else {
-         const error=new Error('Error while admin login')
-         next(error)
+          const error = new Error("Error while admin login");
+          next(error);
         }
       })
       .catch((error) => {
-        console.log("error", error)
-        next(error)
+        console.log("error", error);
+        next(error);
       });
   } catch (error) {
     console.log("err", error);
-    next(error)
+    next(error);
   }
 };
 
@@ -56,29 +56,28 @@ const allTaskDetails = async (req, res, next) => {
     const getAllTasks = await admin_model.getAllTasks(
       date.start_date,
       date.end_date
-    )
-      res.status(constants.responseCodes.success).json({
-        message: constants.responseMessage.success,
-        getAllTasks,
-      });
-    
+    );
+    res.status(constants.responseCodes.success).json({
+      message: constants.responseMessage.success,
+      getAllTasks,
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 
 const logout = async (req, res, next) => {
-    try{
-  const uuid = req.user.uuid;
-  const isLogout = await admin_model.logout(uuid);
+  try {
+    const uuid = req.user.uuid;
+    const isLogout = await admin_model.logout(uuid);
 
-  res.status(constants.responseCodes.success).json({
-    message: constants.responseMessage.success,
-    isLogout,
-  })
-}catch(error){
-    next(error)
-}
+    res.status(constants.responseCodes.success).json({
+      message: constants.responseMessage.success,
+      isLogout,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 module.exports = {
   allTaskDetails,

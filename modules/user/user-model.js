@@ -1,10 +1,11 @@
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
 const { constants } = require("../../utils/constant");
-const { encryptPassword, validatePassword } = require("../../utils/encrypt")
-const config=require('../../configuration/config')
+const { encryptPassword, validatePassword } = require("../../utils/encrypt");
+const config = require("../../configuration/config");
+var nodemailer = require("nodemailer");
 const user_register = async (userData) => {
-  console.log('userData', userData.username)
+  console.log("userData", userData.username);
   try {
     const users = await _DB.user.findOne({
       where: {
@@ -14,9 +15,30 @@ const user_register = async (userData) => {
     if (users) {
       const err = new Error(constants.errors.user);
       throw err;
-    }
-    await _DB.user.create(userData);
+    } else await _DB.user.create(userData);
 
+    var transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.user,
+        pass: process.env.pass,
+      },
+    });
+
+    var mailOptions = {
+      from: process.env.user,
+      to: userData.email,
+      subject: "Welcome mail",
+      text: `Welcome ${userData.username}`,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        throw error;
+      } else {
+        console.log("Email sent: " + info.response);
+      }
+    });
     return true;
   } catch (err) {
     console.log("err", err);
@@ -28,14 +50,13 @@ const createSession = (user) => {
   return new Promise((resolve, reject) => {
     const userId = user.user_id;
 
-    _DB.Session
-      .create({
-        user_id: userId,
-        login_time: +moment().unix(),
-        time_to_leave: +moment().add(1, "days").unix(),
-        is_loggedout: 0,
-        is_admin: 0,
-      })
+    _DB.Session.create({
+      user_id: userId,
+      login_time: +moment().unix(),
+      time_to_leave: +moment().add(1, "days").unix(),
+      is_loggedout: 0,
+      is_admin: 0,
+    })
       .then((session) => {
         resolve(session);
       })
@@ -57,7 +78,7 @@ const generateJwtToken = (user, uuid, isAdmin) => {
         username,
         isAdmin,
       },
-      config.get('jwt.key'),
+      config.get("jwt.key"),
       {
         expiresIn: "24h",
         algorithm: "HS384",
@@ -129,7 +150,7 @@ const login = async (userData) => {
   try {
     let users = await _DB.user.findOne({
       where: {
-        username: userData.username
+        username: userData.username,
       },
     });
 
@@ -137,7 +158,7 @@ const login = async (userData) => {
       const isValidate = validatePassword(
         userData.password,
         users.password.split(":")[1],
-        users.password.split(":")[1] // TODO: correct this
+        users.password.split(":")[0] // TODO: correct this
       );
       if (isValidate) {
         const session = await createSession(users);
@@ -178,9 +199,7 @@ const logout = async (uuid) => {
     });
 
     if (loginData) {
-      await loginData.update(
-        { is_loggedout: 1 }
-      );
+      await loginData.update({ is_loggedout: 1 });
       return true;
     } else {
       const err = new Error(constants.errors.failedLoggingout);

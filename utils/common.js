@@ -11,7 +11,7 @@ const schemaValidator = (schema, schemaStructure) => {
     isValid = true;
   } else {
     error = new Error("problem while validating data");
-    throw error
+    throw error;
   }
   return {
     isValid,

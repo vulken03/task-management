@@ -3,10 +3,10 @@ const newUserSchema = {
   properties: {
     username: {
       type: "string",
-      maxLength:20
+      maxLength: 20,
     },
     password: {
-      type: "string"
+      type: "string",
     },
   },
   required: ["username", "password"],

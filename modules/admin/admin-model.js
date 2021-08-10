@@ -138,14 +138,7 @@ const logout = async (uuid) => {
     });
 
     if (loginData) {
-      await _DB.Session.update(
-        { is_loggedout: 1 },
-        {
-          where: {
-            uuid,
-          },
-        }
-      );
+      await loginData.update({ is_loggedout: 1 });
       return true;
     } else {
       const err = new Error("error while loggedout");
