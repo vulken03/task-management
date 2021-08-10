@@ -1,6 +1,3 @@
-const db = require("../../database");
-const user = db.user;
-const userLogin = db.Session;
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
 const { constants } = require("../../utils/constant");
@@ -9,7 +6,7 @@ const config=require('../../configuration/config')
 const user_register = async (userData) => {
   console.log('userData', userData.username)
   try {
-    const users = await user.findOne({
+    const users = await _DB.user.findOne({
       where: {
         username: userData.username,
       },
@@ -18,7 +15,7 @@ const user_register = async (userData) => {
       const err = new Error(constants.errors.user);
       throw err;
     }
-    await user.create(userData);
+    await _DB.user.create(userData);
 
     return true;
   } catch (err) {
@@ -31,7 +28,7 @@ const createSession = (user) => {
   return new Promise((resolve, reject) => {
     const userId = user.user_id;
 
-    userLogin
+    _DB.Session
       .create({
         user_id: userId,
         login_time: +moment().unix(),
@@ -130,7 +127,7 @@ const login = async (userData) => {
   //       });
   //   });
   try {
-    let users = await user.findOne({
+    let users = await _DB.user.findOne({
       where: {
         username: userData.username
       },
@@ -174,14 +171,14 @@ const login = async (userData) => {
 };
 const logout = async (uuid) => {
   try {
-    const loginData = await userLogin.findOne({
+    const loginData = await _DB.Session.findOne({
       where: {
         uuid,
       },
     });
 
     if (loginData) {
-      await userLogin.update(
+      await _DB.Session.update(
         { is_loggedout: 1 },
         {
           where: {

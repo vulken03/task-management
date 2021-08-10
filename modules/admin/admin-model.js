@@ -1,26 +1,20 @@
-const db = require("../../database");
-const user = db.user;
-const userLogin = db.Session;
-const Task = db.task;
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
 const { Op } = require("sequelize");
 //const excel = require('exceljs')
 const sequelize = require("sequelize");
-const admin = db.admin_module
-const config=require('../../configuration/config')
+const config = require("../../configuration/config");
 const createSessionAdmin = (admin) => {
   return new Promise((resolve, reject) => {
     const adminId = admin.admin_id;
 
-    userLogin
-      .create({
-        user_id: adminId,
-        login_time: +moment().unix(),
-        time_to_leave: +moment().add(1, "days").unix(),
-        is_loggedout: 0,
-        is_admin: 1,
-      })
+    _DB.Session.create({
+      user_id: adminId,
+      login_time: +moment().unix(),
+      time_to_leave: +moment().add(1, "days").unix(),
+      is_loggedout: 0,
+      is_admin: 1,
+    })
       .then((session) => {
         resolve(session);
       })
@@ -42,8 +36,7 @@ const generateJwtToken = (user, uuid, isAdmin) => {
         username,
         isAdmin,
       },
-      config.get('jwt.key')
-      ,
+      config.get("jwt.key"),
       {
         expiresIn: "24h",
         algorithm: "HS384",
@@ -59,7 +52,7 @@ const Adminlogin = (adminData) => {
     let isSuccessful = false;
     let token = "";
 
-    admin
+    _DB.admin_module
       .findOne({
         where: {
           username: adminData.username,
@@ -107,7 +100,7 @@ const Adminlogin = (adminData) => {
 
 const getAllTasks = async (startDate, endDate) => {
   try {
-    const getAllTaskDetails = await Task.findAll({
+    const getAllTaskDetails = await _DB.task.findAll({
       where: {
         [Op.or]: {
           start_date: { [Op.between]: [startDate, endDate] },
@@ -117,7 +110,7 @@ const getAllTasks = async (startDate, endDate) => {
       attributes: [[sequelize.fn("COUNT", "*"), "n_tasks"], "user.username"],
 
       include: {
-        model: user,
+        model: _DB.user,
         attributes: [],
       },
       group: "task.user_id",
@@ -138,14 +131,14 @@ const getAllTasks = async (startDate, endDate) => {
 };
 const logout = async (uuid) => {
   try {
-    const loginData = await userLogin.findOne({
+    const loginData = await _DB.Session.findOne({
       where: {
         uuid,
       },
     });
 
     if (loginData) {
-      await userLogin.update(
+      await _DB.Session.update(
         { is_loggedout: 1 },
         {
           where: {

@@ -23,12 +23,10 @@ const getTaskSchema={
     type:'object',
     properties:{
         start_date:{
-            type:'string',
-            format:'date'
+            type:'string'
         },
         end_date:{
-            type:'string',
-            format:'date' 
+            type:'string' 
         }
     },
     required:[

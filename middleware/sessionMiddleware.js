@@ -2,11 +2,8 @@ const moment = require("moment")
 const jwt = require("jsonwebtoken")
 const { constants } = require("../utils/constant")
 //const moment=require('moment')
-const db = require("../database")
 const config=require('../configuration/config')
-const Session = db.Session;
-const User = db.user;
-const admin = db.admin_module;
+
 
 let verifyJWT = async (req) => {
   try {
@@ -32,7 +29,7 @@ let verifyJWT = async (req) => {
 let isValidSession = async (uuid) => {
   try {
     let isValid = false;
-    let userSession = await Session.findOne({
+    let userSession = await _DB.Session.findOne({
       where: {
         uuid,
       },
@@ -47,7 +44,7 @@ let isValidSession = async (uuid) => {
       }
 
       if (isExpired) {
-        await Session.update(
+        await _DB.Session.update(
           { is_loggedout: 1 },
           {
             fields: ["is_loggedout"],
@@ -69,13 +66,13 @@ let isValidUser = async (user) => {
     let isUserValid = false;
     let fetchedUser = null;
     if (user.isAdmin == 1) {
-      fetchedUser = await admin.findOne({
+      fetchedUser = await _DB.admin_module.findOne({
         where: {
           admin_id: user.userId,
         },
       });
     } else {
-      fetchedUser = await User.findOne({
+      fetchedUser = await _DB.user.findOne({
         where: {
           user_id: user.userId,
         },

@@ -3,8 +3,6 @@
     "port": "8000",
     "database": {
         "name": "todo",
-        "username": "admin",
-        "password": "Admin@123",
         "dialect": "mysql"
     },
     "jwt": {

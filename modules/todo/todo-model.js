@@ -1,6 +1,3 @@
-const db = require("../../database");
-const user = db.user;
-const Task = db.task;
 const { Op } = require("sequelize");
 //const excel = require('exceljs')
 
@@ -10,7 +7,7 @@ const task = async (userid, taskDetails) => {
     const date1 = new Date(taskDetails.start_date);
     const date2 = new Date(taskDetails.end_date);
     if (date1 < date2 && date1 >= todayDate) {
-      await Task.create({
+      await _DB.task.create({
         task_name: taskDetails.task_name,
         start_date: taskDetails.start_date,
         end_date: taskDetails.end_date,
@@ -34,14 +31,14 @@ const update_task = async (userid, taskDetails, taskid) => {
     const todayDate = new Date();
     const date1 = new Date(taskDetails.start_date);
     const date2 = new Date(taskDetails.end_date);
-    const taskData = await Task.findOne({
+    const taskData = await _DB.task.findOne({
       where: {
         task_id: taskid,
       },
     });
     if (taskData) {
       if (taskData.user_id == userid && date1 < date2 && date1 >= todayDate) {
-        await Task.update(taskDetails, {
+        await _DB.task.update(taskDetails, {
           where: {
             task_id: taskid,
             user_id: userid,
@@ -66,14 +63,14 @@ const update_task = async (userid, taskDetails, taskid) => {
 
 const complete_task = async (userid, taskDetails, taskid) => {
   try {
-    const taskData = await Task.findOne({
+    const taskData = await _DB.task.findOne({
       where: {
         task_id: taskid,
       },
     });
     if (taskData) {
       if (taskData.user_id == userid) {
-        await Task.update(taskDetails, {
+        await _DB.task.update(taskDetails, {
           where: {
             task_id: taskid,
             user_id: userid,
@@ -93,7 +90,7 @@ const complete_task = async (userid, taskDetails, taskid) => {
 
 const delete_task = async (userid, taskid) => {
   try {
-    const taskData = await Task.findOne({
+    const taskData = await _DB.task.findOne({
       where: {
         task_id: taskid,
       },
@@ -102,7 +99,7 @@ const delete_task = async (userid, taskid) => {
     console.log("taskdata", taskData);
     if (taskData) {
       if (taskData.user_id == userid && taskData.is_complete == false) {
-        await Task.destroy({
+        await _DB.task.destroy({
           where: {
             task_id: taskid,
           },
@@ -120,7 +117,7 @@ const delete_task = async (userid, taskid) => {
 
 const getTask = async (startDate, endDate, userid) => {
   try {
-    const getTaskDetails = await Task.findAll({
+    const getTaskDetails = await _DB.task.findAll({
       where: {
         user_id: userid,
         [Op.or]: {
@@ -133,7 +130,7 @@ const getTask = async (startDate, endDate, userid) => {
       },
 
       include: {
-        model: user,
+        model: _DB.user,
         attributes: ["username"],
       },
       raw: true,

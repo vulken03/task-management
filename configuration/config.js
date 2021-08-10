@@ -5,7 +5,8 @@ const config = convict({
   env: {
     doc: 'The application environment.',
     format: ['production', 'development', 'qa'],
-    default: 'development'
+    default: 'development',
+    env:'NODE_ENV'
   },
   host: {
     doc: 'host name',
@@ -15,7 +16,8 @@ const config = convict({
   port: {
     doc: 'port number',
     format: Number,
-    default: 8080
+    default: 8085,
+    env:'PORT'
   },
   database: {
     name: {
@@ -31,7 +33,8 @@ const config = convict({
     password: {
       doc: 'Database password',
       format: String,
-      default: 'Admin@123'
+      default: '',
+      env:'DB_PASSWORD'
     },
     dialect: {
       doc: 'Sequelize dialect',

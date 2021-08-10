@@ -1,31 +1,29 @@
-// TODO - Usage of dotenv - require('dotenv').config()
-const express=require('express')
-const api=require('./routes/index')
-const db=require('./database') // TODO: store this in global object global._DB & use this instead of using require!
-const{errorHandler}=require('./utils/error')
-const middleware=require('./middleware')
-//const config=
-// const {authenticateRequest}=require('./middleware/sessionMiddleware')
+require("dotenv").config();
+const express = require("express");
+const api = require("./routes/index");
+global._DB = require("./database"); // TODO: store this in global object global._DB & use this instead of using require!
+const { errorHandler } = require("./utils/error");
+const middleware = require("./middleware");
 
-const app=express()
+const app = express();
 
-app.use(express.json())
+app.use(express.json());
 
-middleware(app)
+middleware(app);
 
-api(app)
+api(app);
 
-app.use(errorHandler)
+app.use(errorHandler);
 
-const PORT=8085
+const PORT = process.env.PORT;
 
-
-db.sequelize.sync({ alter: false }).then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server started on port no ${PORT}`)
+_DB.sequelize
+  .sync({ alter: false })
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server started on port no ${PORT}`);
+    });
   })
-}).catch((err) => {
-  console.log('Error while syncing database...',err)
-})
-
-
+  .catch((err) => {
+    console.log("Error while syncing database...", err);
+  });
