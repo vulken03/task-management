@@ -6,22 +6,25 @@ const config = require("../configuration/config");
 
 let verifyJWT = async (req) => {
   // TODO: pass only those arguments that are needed in the function defination
-  // try {
-  let token = req.headers["authorization"];
-
-  let userData = jwt.verify(token, config.get("jwt.key"), {
-    algorithms: ["HS384"],
-  });
-  if (userData) {
-    return userData;
+  let userData = null;
+  if (req.url == "/resetPassword") {
+    userdata=await verifyPasswordResetJwt(req)
   } else {
-    const error = new Error("userData not found");
-    throw error;
-  }
-  // } catch (err) {
-  //   console.log("err", err);
-  //   throw err;
-  // }
+    let token = req.headers["authorization"];
+
+    userData = jwt.verify(token, config.get("jwt.key"), {
+      algorithms: ["HS384"],
+    });
+    if (userData) {
+      return userData;
+    } else {
+      const error = new Error("userData not found");
+      throw error;
+    }
+    // } catch (err) {
+    //   console.log("err", err);
+    //   throw err;
+  } // }
 };
 
 let isValidSession = async (uuid) => {
@@ -130,6 +133,19 @@ let authenticateRequest = async (req, res, next) => {
   }
 };
 
+let verifyPasswordResetJwt = async (req) => {
+  const token = jwt.decode(req.headers.authorization);
+  const userDetails = await _DB.user.findOne({
+    where: {
+      user_id: token.userId,
+    },
+  });
+  if (userDetails) {
+    jwt.verify(req.headers.authorization, userDetails.password, {
+      algorithms: "HS384",
+    });
+  }
+};
 module.exports = {
   authenticateRequest,
 };

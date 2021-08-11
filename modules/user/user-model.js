@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
 const { constants } = require("../../utils/constant");
-const { encryptPassword, validatePassword } = require("../../utils/encrypt");
+const { validatePassword } = require("../../utils/encrypt");
 const config = require("../../configuration/config");
 var nodemailer = require("nodemailer");
 const user_register = async (userData) => {
@@ -211,9 +211,90 @@ const logout = async (uuid) => {
   }
 };
 
+const passwordResetMail = async (userData) => {
+  try {
+    const User = await _DB.user.findOne({
+      where: {
+        email: userData.email,
+      },
+    });
+    if (User) {
+      const session = await createPasswordResetSession(User.user_id);
+      if (session) {
+        const token = await generatePasswordResetJwt(
+          User.user_id,
+          session.uuid,
+          User.username,
+          User.password
+        );
+        if (token) {
+          var transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+              user: process.env.user,
+              pass: process.env.pass,
+            },
+          });
+
+          var mailOptions = {
+            from: process.env.user,
+            to: userData.email,
+            subject: "Reset password mail",
+            text: `Token: ${token}`,
+          };
+
+          transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+              throw error;
+            } else {
+              console.log("Email sent: " + info.response);
+            }
+          });
+
+          return true;
+        } else {
+          throw new Error("Error occured while generating token");
+        }
+      } else {
+        throw new Error("Error occured while create session");
+      }
+    } else {
+      throw new Error("User not found with this email-id");
+    }
+  } catch (error) {
+    console.log("error", error);
+    throw error;
+  }
+};
+const createPasswordResetSession = (userid) => {
+  return _DB.Session.create({
+    user_id: userid,
+    login_time: +moment().unix(),
+    time_to_leave: +moment().add(1, "hours").unix(),
+    is_loggedout: 0,
+    is_admin: 0,
+  });
+};
+
+const generatePasswordResetJwt = (userId, uuid, username, password) => {
+  return jwt.sign(
+    {
+      uuid,
+      userId,
+      username,
+    },
+    password,
+    {
+      expiresIn: "1h",
+      algorithm: "HS384",
+    }
+  );
+};
+
 module.exports = {
   user_register,
   createSession,
   login,
   logout,
+  passwordResetMail,
 };

@@ -20,8 +20,7 @@ const sequelize = new Sequelize(
     pool: {
       max: 5,
     },
-    benchmark: true,
-    timezone: "+05:30",
+    
   }
 );
 

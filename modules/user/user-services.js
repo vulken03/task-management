@@ -86,8 +86,23 @@ const logout = async (req, res, next) => {
   }
 };
 
+const passwordResetMail=async (req,res,next)=>{
+  try{
+    let user=req.body
+    const resetPassword=await user_model.passwordResetMail(user)
+    res.status(constants.responseCodes.success).json({
+      message: constants.responseMessage.success,
+      resetPassword,
+    });
+
+  }catch(err){
+    next(err)
+  }
+}
+
 module.exports = {
   signup,
   login,
   logout,
+  passwordResetMail
 };
