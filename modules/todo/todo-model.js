@@ -62,12 +62,12 @@ const complete_task = async (userid, taskDetails, taskid) => {
     const taskData = await _DB.task.findOne({
       where: {
         task_id: taskid,
-        user_id: userid
+        user_id: userid,
       },
     });
     if (taskData) {
       if (taskData.user_id == userid) {
-        await taskData.update(taskDetails)
+        await taskData.update(taskDetails);
         return true;
       }
     } else {
@@ -105,25 +105,48 @@ const delete_task = async (userid, taskid) => {
 
 const getTask = async (startDate, endDate, userid) => {
   try {
-    const getTaskDetails = await _DB.task.findAll({
-      where: {
-        user_id: userid,
-        [Op.or]: {
-          start_date: { [Op.between]: [startDate, endDate] },
-          end_date: { [Op.between]: [startDate, endDate] },
+    const TODAY_START = new Date().setHours(0, 0, 0, 0);
+    const NOW = new Date();
+    let getTaskDetails = null;
+    if (startDate && endDate) {
+      getTaskDetails = await _DB.task.findAll({
+        where: {
+          user_id: userid,
+          [Op.or]: {
+            start_date: { [Op.between]: [startDate, endDate] },
+            end_date: { [Op.between]: [startDate, endDate] },
+          },
         },
-      },
-      attributes: {
-        include: ["task_name", "is_complete", "start_date", "end_date"],
-      },
+        attributes: {
+          include: ["task_name", "is_complete", "start_date", "end_date"],
+        },
 
-      include: {
-        model: _DB.user,
-        attributes: ["username"],
-      },
-      raw: true,
-    });
+        include: {
+          model: _DB.user,
+          attributes: ["username"],
+        },
+        raw: true,
+      });
+    } else {
+      getTaskDetails = await _DB.task.findAll({
+        where: {
+          user_id: userid,
+          start_date: {
+            [Op.gt]: TODAY_START,
+            [Op.lt]: NOW,
+          },
+        },
+        attributes: {
+          include: ["task_name", "is_complete", "start_date", "end_date"],
+        },
 
+        include: {
+          model: _DB.user,
+          attributes: ["username"],
+        },
+        raw: true,
+      });
+    }
     if (getTaskDetails) {
       console.log("user", getTaskDetails);
       return getTaskDetails;
@@ -136,6 +159,10 @@ const getTask = async (startDate, endDate, userid) => {
     throw error;
   }
 };
+
+const getExcelFile=()=>{
+  
+}
 
 module.exports = {
   task,

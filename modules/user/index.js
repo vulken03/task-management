@@ -13,4 +13,5 @@ module.exports = (app) => {
   app.post("/user_login", userService.login);
   app.post("/user_logout", userService.logout);
   app.post('/passwordResetMail',userService.passwordResetMail)
+  app.post('/resetPassword',userService.passwordReset)
 };

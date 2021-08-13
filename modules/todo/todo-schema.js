@@ -26,8 +26,7 @@ const getTaskSchema = {
     end_date: {
       type: "string",
     },
-  },
-  required: ["start_date", "end_date"],
+  }
 };
 
 module.exports = {

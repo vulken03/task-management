@@ -4,6 +4,7 @@ const { constants } = require("../../utils/constant");
 const { validatePassword } = require("../../utils/encrypt");
 const config = require("../../configuration/config");
 var nodemailer = require("nodemailer");
+const { raw } = require("body-parser");
 const user_register = async (userData) => {
   console.log("userData", userData.username);
   try {
@@ -217,7 +218,8 @@ const passwordResetMail = async (userData) => {
       where: {
         email: userData.email,
       },
-    });
+      raw:true
+    },);
     if (User) {
       const session = await createPasswordResetSession(User.user_id);
       if (session) {
@@ -266,8 +268,29 @@ const passwordResetMail = async (userData) => {
     throw error;
   }
 };
-const createPasswordResetSession = (userid) => {
-  return _DB.Session.create({
+
+const passwordReset = async (userId, userData) => {
+  try {
+    const findUser = await _DB.user.findOne({
+      where: {
+        user_id: userId,
+      },
+    });
+    if (findUser) {
+      const passwordUpdate = await findUser.update({
+        password: userData.password,
+      });
+      return passwordUpdate;
+    } else {
+      throw new Error("user not found");
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+const createPasswordResetSession = async(userid) => {
+  return await _DB.Session.create({
     user_id: userid,
     login_time: +moment().unix(),
     time_to_leave: +moment().add(1, "hours").unix(),
@@ -276,14 +299,14 @@ const createPasswordResetSession = (userid) => {
   });
 };
 
-const generatePasswordResetJwt = (userId, uuid, username, password) => {
+const generatePasswordResetJwt = async(userId, uuid, username, password) => {
   return jwt.sign(
     {
       uuid,
       userId,
       username,
     },
-    password,
+    'onlinewebtutorkey',
     {
       expiresIn: "1h",
       algorithm: "HS384",
@@ -297,4 +320,5 @@ module.exports = {
   login,
   logout,
   passwordResetMail,
+  passwordReset,
 };

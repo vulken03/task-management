@@ -7,12 +7,12 @@ const config = require("../configuration/config");
 let verifyJWT = async (req) => {
   // TODO: pass only those arguments that are needed in the function defination
   let userData = null;
-  if (req.url == "/resetPassword") {
-    userdata=await verifyPasswordResetJwt(req)
+  if (req.url === "/resetPassword") {
+    userData = await verifyPasswordResetJwt(req);
   } else {
     let token = req.headers["authorization"];
 
-    userData = jwt.verify(token, config.get("jwt.key"), {
+    userData =jwt.verify(token, config.get("jwt.key"), {
       algorithms: ["HS384"],
     });
     if (userData) {
@@ -135,15 +135,22 @@ let authenticateRequest = async (req, res, next) => {
 
 let verifyPasswordResetJwt = async (req) => {
   const token = jwt.decode(req.headers.authorization);
+  console.log(token);
   const userDetails = await _DB.user.findOne({
     where: {
       user_id: token.userId,
     },
+    raw: true,
   });
   if (userDetails) {
-    jwt.verify(req.headers.authorization, userDetails.password, {
-      algorithms: "HS384",
-    });
+    let userData = jwt.verify(
+      req.headers.authorization,
+      "onlinewebtutorkey",
+      {
+        algorithms: "HS384",
+      }
+    );
+    return userData;
   }
 };
 module.exports = {

@@ -86,23 +86,37 @@ const logout = async (req, res, next) => {
   }
 };
 
-const passwordResetMail=async (req,res,next)=>{
-  try{
-    let user=req.body
-    const resetPassword=await user_model.passwordResetMail(user)
+const passwordResetMail = async (req, res, next) => {
+  try {
+    let user = req.body;
+    const resetPassword = await user_model.passwordResetMail(user);
     res.status(constants.responseCodes.success).json({
       message: constants.responseMessage.success,
       resetPassword,
     });
-
-  }catch(err){
-    next(err)
+  } catch (err) {
+    next(err);
   }
-}
+};
+
+const passwordReset = async (req, res, next) => {
+  let userid = req.user.user_id;
+  let userDetails = req.body;
+  try {
+    const resetPassword = await user_model.passwordReset(userid, userDetails);
+    res.status(constants.responseCodes.success).json({
+      message: constants.responseMessage.success,
+      resetPassword,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 module.exports = {
   signup,
   login,
   logout,
-  passwordResetMail
+  passwordResetMail,
+  passwordReset
 };
