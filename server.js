@@ -1,12 +1,11 @@
 require("dotenv").config();
 const express = require("express");
 const api = require("./routes/index");
-global._DB = require("./database"); // TODO: store this in global object global._DB & use this instead of using require!
 const { errorHandler } = require("./utils/error");
 const middleware = require("./middleware");
-
 const app = express();
-
+global._DB = require("./database");
+global.__basedir = __dirname;
 middleware(app);
 
 api(app);

@@ -158,10 +158,77 @@ const task_details = async (req, res, next) => {
   }
 };
 
+const getTodayTask = async (req, res, next) => {
+  try {
+    let userid = req.user.user_id;
+    let Currenturl = url.parse(req.url, true);
+
+    let date = Currenturl.query;
+    // console.log(date)
+    const { isValid, error } = common.schemaValidator(
+      date,
+      user_data.getTaskSchema
+    );
+    if (!isValid) {
+      return next(error);
+    }
+    let getTask = await todo_model.todayTask(
+      date.start_date,
+      date.end_date,
+      userid
+    );
+    res.status(constants.responseCodes.success).json({
+      message: constants.responseMessage.success,
+      getTask,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const downloadTemplate = async (req, res, next) => {
+  let workbook = new excel.Workbook();
+  let worksheet = workbook.addWorksheet("Template");
+
+  worksheet.columns = [
+    { header: "task_name", key: "task_name", width: 15 },
+    { header: "start_date", key: "start_date", width: 15 },
+    { header: "end_date", key: "end_date", width: 15 },
+  ];
+  res.setHeader(
+    "Content-Type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+  res.setHeader(
+    "Content-Disposition",
+    "attachment; filename=" + "template.xlsx"
+  );
+  res.status(constants.responseCodes.success);
+  await workbook.xlsx.write(res);
+};
+
+const createMultipleTasks = async (req, res, next) => {
+  try {
+    const userid = req.user.user_id;
+    const filename=req.file.filename;
+    let allTasks = await todo_model.createMultipleTask(userid,filename);
+    res.status(constants.responseCodes.success).json({
+      message: constants.responseMessage.success,
+      allTasks,
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   tasks,
   update_tasks,
   complete_tasks,
   task_delete,
   task_details,
+  getTodayTask,
+  downloadTemplate,
+  createMultipleTasks,
 };

@@ -1,3 +1,4 @@
+const multer = require("multer");
 const { constants } = require("./constant");
 let Validator = require("jsonschema").Validator;
 let v = new Validator();
@@ -27,7 +28,32 @@ const allowAdminOnly = (req, res, next) => {
   }
 };
 
+const excelFilter = (req, file, cb) => {
+  if (
+    file.mimetype.includes("excel") ||
+    file.mimetype.includes("spreadsheetml")
+  ) {
+    cb(null, true);
+  } else {
+    cb("Please upload only excel file.", false);
+  }
+};
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, __basedir + "/assets/uploads/");
+  },
+  filename: (req, file, cb) => {
+    console.log(file.originalname);
+    const filename = file.originalname.split(".");
+    const uniqueFileName = req.user.uuid + "." + filename[1];
+    console.log(file.originalname);
+    cb(null, uniqueFileName);
+  },
+});
+const uploadFile = multer({ storage: storage, fileFilter: excelFilter });
+
 module.exports = {
   schemaValidator,
   allowAdminOnly,
+  uploadFile,
 };

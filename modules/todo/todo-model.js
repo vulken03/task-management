@@ -1,4 +1,5 @@
 const { Op } = require("sequelize");
+const readXlsxFile = require("read-excel-file/node");
 //const excel = require('exceljs')
 
 const task = async (userid, taskDetails) => {
@@ -105,8 +106,44 @@ const delete_task = async (userid, taskid) => {
 
 const getTask = async (startDate, endDate, userid) => {
   try {
+    const getTaskDetails = await _DB.task.findAll({
+      where: {
+        user_id: userid,
+        [Op.or]: {
+          start_date: { [Op.between]: [startDate, endDate] },
+          end_date: { [Op.between]: [startDate, endDate] },
+        },
+      },
+      attributes: {
+        include: ["task_name", "is_complete", "start_date", "end_date"],
+      },
+
+      include: {
+        model: _DB.user,
+        attributes: ["username"],
+      },
+      raw: true,
+    });
+    // } else {
+    //
+    // }
+    if (getTaskDetails) {
+      console.log("user", getTaskDetails);
+      return getTaskDetails;
+    } else {
+      const err = new Error("Error while getting data");
+      throw err;
+    }
+  } catch (err) {
+    console.log("err", err);
+    throw error;
+  }
+};
+
+const todayTask = async (startDate, endDate, userid) => {
+  try {
     const TODAY_START = new Date().setHours(0, 0, 0, 0);
-    const NOW = new Date();
+    const date = new Date();
     let getTaskDetails = null;
     if (startDate && endDate) {
       getTaskDetails = await _DB.task.findAll({
@@ -133,7 +170,7 @@ const getTask = async (startDate, endDate, userid) => {
           user_id: userid,
           start_date: {
             [Op.gt]: TODAY_START,
-            [Op.lt]: NOW,
+            [Op.lt]:date
           },
         },
         attributes: {
@@ -148,21 +185,42 @@ const getTask = async (startDate, endDate, userid) => {
       });
     }
     if (getTaskDetails) {
-      console.log("user", getTaskDetails);
       return getTaskDetails;
     } else {
-      const err = new Error("Error while getting data");
-      throw err;
+      throw new Error("no tasks found");
     }
   } catch (err) {
-    console.log("err", err);
-    throw error;
+    throw err;
   }
 };
 
-const getExcelFile=()=>{
-  
-}
+const createMultipleTask = async (userid, filename) => {
+  try {
+    let path = __basedir + "/assets/uploads/" + filename;
+    readXlsxFile(path).then((rows) => {
+      console.log("rows", rows);
+      rows.shift();
+      let tutorials = [];
+
+      rows.forEach((row) => {
+        let tutorial = {
+          task_name: row[0],
+          start_date: row[1],
+          end_date: row[2],
+          user_id: userid,
+        };
+        tutorials.push(tutorial);
+      });
+      const createtask = _DB.task.bulkCreate(tutorials);
+
+      if (!createtask) {
+        throw new Error("error while creating tasks.");
+      }
+    });
+  } catch (err) {
+    throw err;
+  }
+};
 
 module.exports = {
   task,
@@ -170,4 +228,6 @@ module.exports = {
   update_task,
   delete_task,
   getTask,
+  todayTask,
+  createMultipleTask,
 };
