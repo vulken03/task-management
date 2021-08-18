@@ -3,6 +3,7 @@ const express = require("express");
 const api = require("./routes/index");
 const { errorHandler } = require("./utils/error");
 const middleware = require("./middleware");
+const { logger } = require("./utils/logger");
 const app = express();
 global._DB = require("./database");
 global.__basedir = __dirname;
@@ -18,9 +19,9 @@ _DB.sequelize
   .sync({ alter: false })
   .then(() => {
     app.listen(PORT, () => {
-      console.log(`Server started on port no ${PORT}`);
+      logger.info(`Server started on port no ${PORT}`);
     });
   })
   .catch((err) => {
-    console.log("Error while syncing database...", err);
+    logger.error("Error while syncing database...", err);
   });

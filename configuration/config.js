@@ -48,7 +48,14 @@ const config = convict({
       format: String,
       default: 'encrypt@098'
     }
-  } 
+  },
+  logger: {
+    filename: {
+      doc: 'Logger filename',
+      format: String,
+      default: 'request.log'
+    }
+  }
 })
 
 config.loadFile(path.join(__dirname, 'config-' + config.get('env') + '.json'))

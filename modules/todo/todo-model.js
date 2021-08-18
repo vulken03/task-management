@@ -1,5 +1,6 @@
 const { Op } = require("sequelize");
 const readXlsxFile = require("read-excel-file/node");
+const { logger } = require("../../utils/logger");
 //const excel = require('exceljs')
 
 const task = async (userid, taskDetails) => {
@@ -22,7 +23,7 @@ const task = async (userid, taskDetails) => {
       throw error;
     }
   } catch (error) {
-    console.log("error", error);
+    logger.error("error", error);
     throw error;
   }
 };
@@ -53,7 +54,7 @@ const update_task = async (userid, taskDetails, taskid) => {
       throw err;
     }
   } catch (error) {
-    console.log("error", error);
+    logger.error("error", error);
     throw error;
   }
 };
@@ -76,7 +77,7 @@ const complete_task = async (userid, taskDetails, taskid) => {
       throw err;
     }
   } catch (error) {
-    console.log("error", error);
+    logger.error("error", error);
     throw error;
   }
 };
@@ -99,7 +100,7 @@ const delete_task = async (userid, taskid) => {
       }
     }
   } catch (err) {
-    console.log("error");
+    logger.error("error");
     throw err;
   }
 };
@@ -135,7 +136,7 @@ const getTask = async (startDate, endDate, userid) => {
       throw err;
     }
   } catch (err) {
-    console.log("err", err);
+    logger.error("err", err);
     throw error;
   }
 };
@@ -170,7 +171,7 @@ const todayTask = async (startDate, endDate, userid) => {
           user_id: userid,
           start_date: {
             [Op.gt]: TODAY_START,
-            [Op.lt]:date
+            [Op.lt]: date,
           },
         },
         attributes: {
@@ -190,15 +191,40 @@ const todayTask = async (startDate, endDate, userid) => {
       throw new Error("no tasks found");
     }
   } catch (err) {
+    logger.error(err);
     throw err;
   }
 };
 
 const createMultipleTask = async (userid, filename) => {
   try {
+    const schema = {
+      task_name: {
+        prop: "task_name",
+        type: String,
+      },
+      start_date: {
+        prop: "start_date",
+        type: Date,
+      },
+      end_date: {
+        prop: "end_date",
+        type: Date,
+      },
+    };
     let path = __basedir + "/assets/uploads/" + filename;
-    readXlsxFile(path).then((rows) => {
-      console.log("rows", rows);
+    readXlsxFile(path
+      // , {
+      // schema,
+      // transformData(data) {
+      //   return data.filter(
+      //     (row) => row.filter((column) => column !== null).length > 0
+      //   );
+      // },
+    //}
+    ).then(async (rows) => {
+      // console.log("data", data);
+      // console.log("rows", rows);
       rows.shift();
       let tutorials = [];
 
@@ -211,13 +237,10 @@ const createMultipleTask = async (userid, filename) => {
         };
         tutorials.push(tutorial);
       });
-      const createtask = _DB.task.bulkCreate(tutorials);
-
-      if (!createtask) {
-        throw new Error("error while creating tasks.");
-      }
+      await _DB.task.bulkCreate(tutorials);
     });
   } catch (err) {
+    logger.error("err", err);
     throw err;
   }
 };

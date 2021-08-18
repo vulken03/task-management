@@ -4,6 +4,7 @@ const { Op } = require("sequelize");
 //const excel = require('exceljs')
 const sequelize = require("sequelize");
 const config = require("../../configuration/config");
+const { logger } = require("../../utils/logger");
 const createSessionAdmin = (admin) => {
   return new Promise((resolve, reject) => {
     const adminId = admin.admin_id;
@@ -101,6 +102,8 @@ const Adminlogin = (adminData) => {
 const getAllTasks = async (startDate, endDate) => {
   try {
     const getAllTaskDetails = await _DB.task.findAll({
+      limit: 10,
+      offset: 0,
       where: {
         [Op.or]: {
           start_date: { [Op.between]: [startDate, endDate] },
@@ -125,7 +128,7 @@ const getAllTasks = async (startDate, endDate) => {
       throw error;
     }
   } catch (error) {
-    console.log("error", error);
+    logger.error("error", error);
     throw error;
   }
 };
@@ -145,7 +148,7 @@ const logout = async (uuid) => {
       throw err;
     }
   } catch (error) {
-    console.log("error", error);
+    logger.error("error", error);
     throw error;
   }
 };

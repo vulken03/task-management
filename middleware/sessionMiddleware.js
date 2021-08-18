@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { constants } = require("../utils/constant");
 //const moment=require('moment')
 const config = require("../configuration/config");
+const { logger } = require("../utils/logger");
 
 let verifyJWT = async (req) => {
   // TODO: pass only those arguments that are needed in the function defination
@@ -12,7 +13,7 @@ let verifyJWT = async (req) => {
   } else {
     let token = req.headers["authorization"];
 
-    userData =jwt.verify(token, config.get("jwt.key"), {
+    userData = jwt.verify(token, config.get("jwt.key"), {
       algorithms: ["HS384"],
     });
     if (userData) {
@@ -128,7 +129,7 @@ let authenticateRequest = async (req, res, next) => {
       next(new Error("Invalid authorization"));
     }
   } catch (error) {
-    console.log("error", error);
+    logger.error("error", error);
     next(error);
   }
 };
@@ -143,13 +144,9 @@ let verifyPasswordResetJwt = async (req) => {
     raw: true,
   });
   if (userDetails) {
-    let userData = jwt.verify(
-      req.headers.authorization,
-      "onlinewebtutorkey",
-      {
-        algorithms: "HS384",
-      }
-    );
+    let userData = jwt.verify(req.headers.authorization, "onlinewebtutorkey", {
+      algorithms: "HS384",
+    });
     return userData;
   }
 };

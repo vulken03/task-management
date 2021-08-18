@@ -5,6 +5,7 @@ const { validatePassword } = require("../../utils/encrypt");
 const config = require("../../configuration/config");
 var nodemailer = require("nodemailer");
 const { raw } = require("body-parser");
+const { logger } = require("../../utils/logger");
 const user_register = async (userData) => {
   console.log("userData", userData.username);
   try {
@@ -37,12 +38,12 @@ const user_register = async (userData) => {
       if (error) {
         throw error;
       } else {
-        console.log("Email sent: " + info.response);
+        logger.info("Email sent: " + info.response);
       }
     });
     return true;
   } catch (err) {
-    console.log("err", err);
+    logger.error("err", err);
     throw err;
   }
 };
@@ -188,6 +189,7 @@ const login = async (userData) => {
       throw error;
     }
   } catch (error) {
+    logger.error(error);
     throw error;
   }
 };
@@ -207,7 +209,7 @@ const logout = async (uuid) => {
       throw err;
     }
   } catch (error) {
-    console.log("error", error);
+    logger.error("error", error);
     throw error;
   }
 };
@@ -218,8 +220,8 @@ const passwordResetMail = async (userData) => {
       where: {
         email: userData.email,
       },
-      raw:true
-    },);
+      raw: true,
+    });
     if (User) {
       const session = await createPasswordResetSession(User.user_id);
       if (session) {
@@ -249,7 +251,7 @@ const passwordResetMail = async (userData) => {
             if (error) {
               throw error;
             } else {
-              console.log("Email sent: " + info.response);
+              logger.info("Email sent: " + info.response);
             }
           });
 
@@ -264,7 +266,7 @@ const passwordResetMail = async (userData) => {
       throw new Error("User not found with this email-id");
     }
   } catch (error) {
-    console.log("error", error);
+    logger.error("error", error);
     throw error;
   }
 };
@@ -285,11 +287,12 @@ const passwordReset = async (userId, userData) => {
       throw new Error("user not found");
     }
   } catch (error) {
+    logger.error("error", error);
     throw error;
   }
 };
 
-const createPasswordResetSession = async(userid) => {
+const createPasswordResetSession = async (userid) => {
   return await _DB.Session.create({
     user_id: userid,
     login_time: +moment().unix(),
@@ -299,14 +302,14 @@ const createPasswordResetSession = async(userid) => {
   });
 };
 
-const generatePasswordResetJwt = async(userId, uuid, username, password) => {
+const generatePasswordResetJwt = async (userId, uuid, username, password) => {
   return jwt.sign(
     {
       uuid,
       userId,
       username,
     },
-    'onlinewebtutorkey',
+    password,
     {
       expiresIn: "1h",
       algorithm: "HS384",
