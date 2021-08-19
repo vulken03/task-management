@@ -5,12 +5,14 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "generate-docs": "jsdoc -c docs/config.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^7.31.0",
+    "jsdoc": "^3.6.7",
     "sequelize-cli": "^6.2.0"
   },
   "dependencies": {
