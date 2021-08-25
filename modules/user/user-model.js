@@ -32,11 +32,12 @@ const { logger } = require("../../utils/logger");
  * @type {userData}
  */
 const user_register = async (userData) => {
-  console.log("userData", userData.username);
+  const { username } = userData;
+  console.log(`userData ${username}`);
   try {
     const users = await _DB.user.findOne({
       where: {
-        username: userData.username,
+        username,
       },
     });
     if (users) {
@@ -57,27 +58,27 @@ const user_register = async (userData) => {
         from: process.env.user,
         to: userData.email,
         subject: "Welcome mail",
-        text: `Welcome ${userData.username}`,
+        text: `Welcome ${username}`,
       };
 
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
           throw error;
         } else {
-          logger.info("Email sent: " + info.response);
+          logger.info(`Email sent: ${info.response}`);
         }
       });
       return new_User;
     }
   } catch (err) {
-    logger.error("err", err);
+    logger.error(`err ${err}`);
     throw err;
   }
 };
 
-const createSession = (user) => {
+const createSession = ({ user_id }) => {
   return new Promise((resolve, reject) => {
-    const userId = user.user_id;
+    const userId = user_id;
 
     _DB.Session.create({
       user_id: userId,
@@ -95,10 +96,9 @@ const createSession = (user) => {
   });
 };
 
-const generateJwtToken = (user, uuid, isAdmin) => {
+const generateJwtToken = ({ username, admin_id, user_id }, uuid, isAdmin) => {
   return new Promise((resolve, reject) => {
-    const userId = isAdmin == 1 ? user.admin_id : user.user_id;
-    const username = user.username;
+    const userId = isAdmin == 1 ? admin_id : user_id;
 
     const token = jwt.sign(
       {
@@ -130,17 +130,17 @@ const generateJwtToken = (user, uuid, isAdmin) => {
 /**
  * @type {userData}
  */
-const login = async (userData) => {
+const login = async ({ username, password }) => {
   try {
     let users = await _DB.user.findOne({
       where: {
-        username: userData.username,
+        username,
       },
     });
 
     if (users) {
       const isValidate = validatePassword(
-        userData.password,
+        password,
         users.password.split(":")[1],
         users.password.split(":")[0]
       );
@@ -198,7 +198,7 @@ const logout = async (uuid) => {
       throw err;
     }
   } catch (error) {
-    logger.error("error", error);
+    logger.error(`error ${error}`);
     throw error;
   }
 };
@@ -208,29 +208,30 @@ const logout = async (uuid) => {
  * @async
  * @method
  * @typedef {Object} userData userDetails
- * @property {email} email user Email  
- * @returns {void} 
+ * @property {email} email user Email
+ * @returns {void}
  */
 /**
- * 
- * @type {userData} 
+ *
+ * @type {userData}
  */
-const passwordResetMail = async (userData) => {
+const passwordResetMail = async ({ email }) => {
   try {
     const User = await _DB.user.findOne({
       where: {
-        email: userData.email,
+        email,
       },
       raw: true,
     });
     if (User) {
-      const session = await createPasswordResetSession(User.user_id);
+      const { user_id, username, password } = User;
+      const session = await createPasswordResetSession(user_id);
       if (session) {
         const token = await generatePasswordResetJwt(
-          User.user_id,
+          user_id,
           session.uuid,
-          User.username,
-          User.password
+          username,
+          password
         );
         if (token) {
           var transporter = nodemailer.createTransport({
@@ -243,7 +244,7 @@ const passwordResetMail = async (userData) => {
 
           var mailOptions = {
             from: process.env.user,
-            to: userData.email,
+            to: email,
             subject: "Reset password mail",
             text: `Token: ${token}`,
           };
@@ -252,7 +253,7 @@ const passwordResetMail = async (userData) => {
             if (error) {
               throw error;
             } else {
-              logger.info("Email sent: " + info.response);
+              logger.info(`Email sent:  ${info.response}`);
             }
           });
         } else {
@@ -265,20 +266,20 @@ const passwordResetMail = async (userData) => {
       throw new Error("User not found with this email-id");
     }
   } catch (error) {
-    logger.error("error", error);
+    logger.error(`error ${error}`);
     throw error;
   }
 };
 
 /**
  * password reset
- * @param {number} userId 
+ * @param {number} userId
  * @typedef {Object} userData
- * @property {string} password 
+ * @property {string} password
  * @returns {void}
  */
 
-const passwordReset = async (userId, userData) => {
+const passwordReset = async (userId, { password }) => {
   try {
     const findUser = await _DB.user.findOne({
       where: {
@@ -287,14 +288,14 @@ const passwordReset = async (userId, userData) => {
     });
     if (findUser) {
       const passwordUpdate = await findUser.update({
-        password: userData.password,
+        password,
       });
       return passwordUpdate;
     } else {
       throw new Error("user not found");
     }
   } catch (error) {
-    logger.error("error", error);
+    logger.error(`error ${error}`);
     throw error;
   }
 };

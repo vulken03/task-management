@@ -19,16 +19,17 @@ const { logger } = require("../../utils/logger");
  * @type {taskDetails}
  */
 
-const task = async (userid, taskDetails) => {
+const task = async (userid, { start_date, end_date, task_name }) => {
   try {
+    //const { start_date, end_date, task_name } = taskDetails;
     const todayDate = new Date();
-    const date1 = new Date(taskDetails.start_date);
-    const date2 = new Date(taskDetails.end_date);
+    const date1 = new Date(start_date);
+    const date2 = new Date(end_date);
     if (date1 < date2 && date1 >= todayDate) {
       await _DB.task.create({
-        task_name: taskDetails.task_name,
-        start_date: taskDetails.start_date,
-        end_date: taskDetails.end_date,
+        task_name,
+        start_date,
+        end_date,
         user_id: userid,
       });
       return true;
@@ -39,7 +40,7 @@ const task = async (userid, taskDetails) => {
       throw error;
     }
   } catch (error) {
-    logger.error("error", error);
+    logger.error(`error ${error}`);
     throw error;
   }
 };
@@ -64,8 +65,9 @@ const task = async (userid, taskDetails) => {
 const update_task = async (userid, taskDetails, taskid) => {
   try {
     const todayDate = new Date();
-    const date1 = new Date(taskDetails.start_date);
-    const date2 = new Date(taskDetails.end_date);
+    const { start_date, end_date } = taskDetails;
+    const date1 = new Date(start_date);
+    const date2 = new Date(end_date);
     const taskData = await _DB.task.findOne({
       where: {
         task_id: taskid,
@@ -87,7 +89,7 @@ const update_task = async (userid, taskDetails, taskid) => {
       throw err;
     }
   } catch (error) {
-    logger.error("error", error);
+    logger.error(`error ${error}`);
     throw error;
   }
 };
@@ -126,7 +128,7 @@ const complete_task = async (userid, taskDetails, taskid) => {
       throw err;
     }
   } catch (error) {
-    logger.error("error", error);
+    logger.error(`error ${error}`);
     throw error;
   }
 };
@@ -147,7 +149,7 @@ const delete_task = async (userid, taskid) => {
       },
     });
 
-    console.log("taskdata", taskData);
+    console.log(`taskdata ${taskData}`);
     if (taskData) {
       if (taskData.user_id == userid && taskData.is_complete == false) {
         await taskData.destroy();
@@ -157,7 +159,7 @@ const delete_task = async (userid, taskid) => {
       }
     }
   } catch (err) {
-    logger.error("error");
+    logger.error(`error ${err}`);
     throw err;
   }
 };
@@ -203,14 +205,14 @@ const getTask = async (startDate, endDate, userid) => {
     //
     // }
     if (getTaskDetails) {
-      console.log("user", getTaskDetails);
+      console.log(`user ${getTaskDetails}`);
       return getTaskDetails;
     } else {
       const err = new Error("Error while getting data");
       throw err;
     }
   } catch (err) {
-    logger.error("err", err);
+    logger.error(`err ${err}`);
     throw error;
   }
 };
@@ -300,34 +302,8 @@ const todayTask = async (startDate, endDate, userid) => {
 
 const createMultipleTask = async (userid, filename) => {
   try {
-    const schema = {
-      task_name: {
-        prop: "task_name",
-        type: String,
-      },
-      start_date: {
-        prop: "start_date",
-        type: Date,
-      },
-      end_date: {
-        prop: "end_date",
-        type: Date,
-      },
-    };
-    let path = __basedir + "/assets/uploads/" + filename;
-    readXlsxFile(
-      path
-      // , {
-      // schema,
-      // transformData(data) {
-      //   return data.filter(
-      //     (row) => row.filter((column) => column !== null).length > 0
-      //   );
-      // },
-      //}
-    ).then(async (rows) => {
-      // console.log("data", data);
-      // console.log("rows", rows);
+    let path = `${__basedir}/assets/uploads/${filename}`;
+    readXlsxFile(path).then(async (rows) => {
       rows.shift();
       let tutorials = [];
 
@@ -343,7 +319,7 @@ const createMultipleTask = async (userid, filename) => {
       await _DB.task.bulkCreate(tutorials);
     });
   } catch (err) {
-    logger.error("err", err);
+    logger.error(`err ${err}`);
     throw err;
   }
 };

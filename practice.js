@@ -155,5 +155,14 @@ const myFunc = (a, b, ...c) => {
   console.log("b", b);
   console.log("c", c);
 };
-myFunc(2,3,4,5,6,7,8)
+myFunc(2, 3, 4, 5, 6, 7, 8);
 console.log(typeof myFunc);
+
+//recursive call
+let count = (fromNumber) => {
+  console.log(fromNumber);
+  if (fromNumber > 0) {
+    count(fromNumber - 1);
+  }
+};
+count(3);

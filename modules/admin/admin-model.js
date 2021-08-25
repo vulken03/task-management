@@ -25,10 +25,9 @@ const createSessionAdmin = (admin) => {
   });
 };
 
-const generateJwtToken = (user, uuid, isAdmin) => {
+const generateJwtToken = ({ username, admin_id, user_id }, uuid, isAdmin) => {
   return new Promise((resolve, reject) => {
-    const userId = isAdmin == 1 ? user.admin_id : user.user_id;
-    const username = user.username;
+    const userId = isAdmin == 1 ? admin_id : user_id;
 
     const token = jwt.sign(
       {
@@ -61,7 +60,7 @@ const generateJwtToken = (user, uuid, isAdmin) => {
  * @type {adminData}
  */
 
-const Adminlogin = (adminData) => {
+const Adminlogin = ({ username, password }) => {
   return new Promise((resolve, reject) => {
     let isSuccessful = false;
     let token = "";
@@ -69,12 +68,12 @@ const Adminlogin = (adminData) => {
     _DB.admin_module
       .findOne({
         where: {
-          username: adminData.username,
+          username,
         },
       })
       .then((admin) => {
         if (admin) {
-          if (adminData.password === admin.password) {
+          if (password === admin.password) {
             isSuccessful = true;
             createSessionAdmin(admin)
               .then((session) => {
@@ -88,12 +87,12 @@ const Adminlogin = (adminData) => {
                     });
                   })
                   .catch((err) => {
-                    console.log("err", err);
+                    console.log(`err ${err}`);
                     reject(err);
                   });
               })
               .catch((err) => {
-                console.log("err", err);
+                console.log(`err ${err}`);
                 reject(err);
               });
           } else {
@@ -111,7 +110,6 @@ const Adminlogin = (adminData) => {
       });
   });
 };
-
 
 /**
  * all users with task count
@@ -150,14 +148,14 @@ const getAllTasks = async (startDate, endDate) => {
     });
 
     if (getAllTaskDetails) {
-      console.log("getall", getAllTaskDetails);
+      console.log(`getall ${getAllTaskDetails}`);
       return getAllTaskDetails;
     } else {
       const error = new Error("Error while getting data");
       throw error;
     }
   } catch (error) {
-    logger.error("error", error);
+    logger.error(`error ${error}`);
     throw error;
   }
 };
@@ -184,7 +182,7 @@ const logout = async (uuid) => {
       throw err;
     }
   } catch (error) {
-    logger.error("error", error);
+    logger.error(`error ${error}`);
     throw error;
   }
 };
