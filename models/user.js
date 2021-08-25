@@ -18,7 +18,8 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING(254),
         allowNull: false,
         unique: true,
-        isEmail: true,
+        lowercase: true,
+        trim: true,
       },
       phoneno: {
         type: Sequelize.STRING(20),

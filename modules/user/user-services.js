@@ -2,10 +2,11 @@ const { constants } = require("../../utils/constant");
 const common = require("../../utils/common");
 const user_data = require("./user-schema");
 const user_model = require("./user-model");
+const { decryptRequestData } = require("../../utils/encrypt");
 //const log_in=require('./todo-model')
 
 const signup = async (req, res, next) => {
-  let user = req.body;
+  let user = decryptRequestData(req.body.data);
 
   console.log("data", user);
 
@@ -30,7 +31,7 @@ const signup = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
-  let user = req.body;
+  let user = decryptRequestData(req.body.data);
   //let userid=req.user.id
   //task(userid,user)
   try {
@@ -118,5 +119,5 @@ module.exports = {
   login,
   logout,
   passwordResetMail,
-  passwordReset
+  passwordReset,
 };

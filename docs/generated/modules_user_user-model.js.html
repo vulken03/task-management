@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: user-model.js</title>
+    <title>JSDoc: Source: modules/user/user-model.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: user-model.js</h1>
+    <h1 class="page-title">Source: modules/user/user-model.js</h1>
 
     
 
@@ -36,19 +36,28 @@ const { raw } = require("body-parser");
 const { logger } = require("../../utils/logger");
 
 /**
+ * return new_user object
+ * @typedef {Object} new_user
+ * @property {string} username -username(unique)
+ * @property {string} password -password
+ * @property {string} phoneno -phoneno
+ * @property {string} email -email address
+ */
+
+/**
  * user registration
  * @async
  * @method
  * @typedef {object} userData -user object
  * @property {string} username -username(unique)
- * @property {string} password -password 
+ * @property {string} password -password
  * @property {string} phoneno -phoneno
  * @property {string} email -email address
- * @returns {object} - value of new registered user
+ * @returns {new_user} - value of new registered user
  */
 
 /**
- * @type {userData} userData
+ * @type {userData}
  */
 const user_register = async (userData) => {
   console.log("userData", userData.username);
@@ -138,75 +147,18 @@ const generateJwtToken = (user, uuid, isAdmin) => {
 };
 
 /**
- * user_login 
+ * user_login
  * @async
  * @method
  * @typedef {object} userData
  * @property {string} username -username
- * @property {string} password -password 
+ * @property {string} password -password
  * @returns {string} -jwttoken
- */ 
+ */
 /**
- * @type {userData} userData
+ * @type {userData}
  */
 const login = async (userData) => {
-  // TODO: Use async await in this function instead of raw promises!
-  //   return new Promise((resolve, reject) => {
-  //     let isSuccessful = false;
-  //     let token = "";
-
-  //     user
-  //       .findOne({
-  //         where: {
-  //           username: userData.username,
-  //         },
-  //       })
-  //       .then((users) => {
-  //         if (users) {
-  //           const isValidate = validatePassword(
-  //             userData.password,
-  //             users.password.split(":")[1],
-  //             users.password.split(":")[1]
-  //           );
-  //           if (isValidate) {
-  //             isSuccessful = true;
-  //             createSession(users)
-  //               .then((session) => {
-  //                 generateJwtToken(users, session.uuid, session.is_admin)
-  //                   .then((accessToken) => {
-  //                     token = accessToken;
-
-  //                     resolve({
-  //                       isSuccessful,
-  //                       token,
-  //                     });
-  //                   })
-  //                   .catch((err) => {
-  //                     console.log("err", err);
-  //                     reject(err);
-  //                   });
-  //               })
-  //               .catch((err) => {
-  //                 console.log("err", err);
-  //                 reject(err);
-  //               });
-  //           } else {
-  //             resolve({
-  //               isSuccessful,
-  //               token,
-  //             });
-  //           }
-  //         } else {
-  //           resolve({
-  //             isSuccessful,
-  //             token,
-  //           });
-  //         }
-  //       })
-  //       .catch((err) => {
-  //         throw err;
-  //       });
-  //   });
   try {
     let users = await _DB.user.findOne({
       where: {
@@ -251,6 +203,13 @@ const login = async (userData) => {
     throw error;
   }
 };
+/**
+ * user_logout
+ * @async
+ * @method
+ * @param {uuid} uuid -uuid
+ * @returns {boolean} loginData-is_loggedOut is become true or false
+ */
 const logout = async (uuid) => {
   try {
     const loginData = await _DB.Session.findOne({
@@ -272,6 +231,18 @@ const logout = async (uuid) => {
   }
 };
 
+/**
+ * forget_password
+ * @async
+ * @method
+ * @typedef {Object} userData userDetails
+ * @property {email} email user Email  
+ * @returns {void} 
+ */
+/**
+ * 
+ * @type {userData} 
+ */
 const passwordResetMail = async (userData) => {
   try {
     const User = await _DB.user.findOne({
@@ -312,8 +283,6 @@ const passwordResetMail = async (userData) => {
               logger.info("Email sent: " + info.response);
             }
           });
-
-          return true;
         } else {
           throw new Error("Error occured while generating token");
         }
@@ -328,6 +297,14 @@ const passwordResetMail = async (userData) => {
     throw error;
   }
 };
+
+/**
+ * password reset
+ * @param {number} userId 
+ * @typedef {Object} userData
+ * @property {string} password 
+ * @returns {void}
+ */
 
 const passwordReset = async (userId, userData) => {
   try {
@@ -393,13 +370,13 @@ module.exports = {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#login">login</a></li><li><a href="global.html#user_register">user_register</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-calculator.html">calculator</a></li></ul><h3>Classes</h3><ul><li><a href="person.html">person</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Adminlogin">Adminlogin</a></li><li><a href="global.html#calculateTax">calculateTax</a></li><li><a href="global.html#complete_task">complete_task</a></li><li><a href="global.html#createMultipleTask">createMultipleTask</a></li><li><a href="global.html#delete_task">delete_task</a></li><li><a href="global.html#grades">grades</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#logout">logout</a></li><li><a href="global.html#passwordResetMail">passwordResetMail</a></li><li><a href="global.html#person1">person1</a></li><li><a href="global.html#student">student</a></li><li><a href="global.html#studentName">studentName</a></li><li><a href="global.html#task">task</a></li><li><a href="global.html#todo">todo</a></li><li><a href="global.html#update_task">update_task</a></li><li><a href="global.html#user_register">user_register</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Fri Aug 20 2021 15:44:47 GMT+0530 (India Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Aug 25 2021 15:42:00 GMT+0530 (India Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

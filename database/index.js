@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const Sequelize = require("sequelize");
 const config = require("../configuration/config");
-
+const sequelizeTransforms = require('sequelize-transforms');
 // db obj
 const db = {};
 
@@ -52,5 +52,8 @@ for (const model in db) {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+ 
+sequelizeTransforms(sequelize);
 
 module.exports = db;

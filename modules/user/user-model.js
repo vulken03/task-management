@@ -8,14 +8,29 @@ const { raw } = require("body-parser");
 const { logger } = require("../../utils/logger");
 
 /**
- * user registration
- * @async
- * @method 
- * @param {object}userData-all user details
- * @returns {object}new_User-value of new user register
+ * return new_user object
+ * @typedef {Object} new_user
+ * @property {string} username -username(unique)
+ * @property {string} password -password
+ * @property {string} phoneno -phoneno
+ * @property {string} email -email address
  */
 
+/**
+ * user registration
+ * @async
+ * @method
+ * @typedef {object} userData -user object
+ * @property {string} username -username(unique)
+ * @property {string} password -password
+ * @property {string} phoneno -phoneno
+ * @property {string} email -email address
+ * @returns {new_user} - value of new registered user
+ */
 
+/**
+ * @type {userData}
+ */
 const user_register = async (userData) => {
   console.log("userData", userData.username);
   try {
@@ -27,32 +42,32 @@ const user_register = async (userData) => {
     if (users) {
       const err = new Error(constants.errors.user);
       throw err;
-    } else{ 
-    const new_User=await _DB.user.create(userData);
-   
-    var transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.user,
-        pass: process.env.pass,
-      },
-    });
+    } else {
+      const new_User = await _DB.user.create(userData);
 
-    var mailOptions = {
-      from: process.env.user,
-      to: userData.email,
-      subject: "Welcome mail",
-      text: `Welcome ${userData.username}`,
-    };
+      var transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.user,
+          pass: process.env.pass,
+        },
+      });
 
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        throw error;
-      } else {
-        logger.info("Email sent: " + info.response);
-      }
-    });
-    return new_User;
+      var mailOptions = {
+        from: process.env.user,
+        to: userData.email,
+        subject: "Welcome mail",
+        text: `Welcome ${userData.username}`,
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          throw error;
+        } else {
+          logger.info("Email sent: " + info.response);
+        }
+      });
+      return new_User;
     }
   } catch (err) {
     logger.error("err", err);
@@ -103,64 +118,19 @@ const generateJwtToken = (user, uuid, isAdmin) => {
   });
 };
 
+/**
+ * user_login
+ * @async
+ * @method
+ * @typedef {object} userData
+ * @property {string} username -username
+ * @property {string} password -password
+ * @returns {string} -jwttoken
+ */
+/**
+ * @type {userData}
+ */
 const login = async (userData) => {
-  // TODO: Use async await in this function instead of raw promises!
-  //   return new Promise((resolve, reject) => {
-  //     let isSuccessful = false;
-  //     let token = "";
-
-  //     user
-  //       .findOne({
-  //         where: {
-  //           username: userData.username,
-  //         },
-  //       })
-  //       .then((users) => {
-  //         if (users) {
-  //           const isValidate = validatePassword(
-  //             userData.password,
-  //             users.password.split(":")[1],
-  //             users.password.split(":")[1]
-  //           );
-  //           if (isValidate) {
-  //             isSuccessful = true;
-  //             createSession(users)
-  //               .then((session) => {
-  //                 generateJwtToken(users, session.uuid, session.is_admin)
-  //                   .then((accessToken) => {
-  //                     token = accessToken;
-
-  //                     resolve({
-  //                       isSuccessful,
-  //                       token,
-  //                     });
-  //                   })
-  //                   .catch((err) => {
-  //                     console.log("err", err);
-  //                     reject(err);
-  //                   });
-  //               })
-  //               .catch((err) => {
-  //                 console.log("err", err);
-  //                 reject(err);
-  //               });
-  //           } else {
-  //             resolve({
-  //               isSuccessful,
-  //               token,
-  //             });
-  //           }
-  //         } else {
-  //           resolve({
-  //             isSuccessful,
-  //             token,
-  //           });
-  //         }
-  //       })
-  //       .catch((err) => {
-  //         throw err;
-  //       });
-  //   });
   try {
     let users = await _DB.user.findOne({
       where: {
@@ -172,7 +142,7 @@ const login = async (userData) => {
       const isValidate = validatePassword(
         userData.password,
         users.password.split(":")[1],
-        users.password.split(":")[0] // TODO: correct this
+        users.password.split(":")[0]
       );
       if (isValidate) {
         const session = await createSession(users);
@@ -205,6 +175,13 @@ const login = async (userData) => {
     throw error;
   }
 };
+/**
+ * user_logout
+ * @async
+ * @method
+ * @param {uuid} uuid -uuid
+ * @returns {boolean} loginData-is_loggedOut is become true or false
+ */
 const logout = async (uuid) => {
   try {
     const loginData = await _DB.Session.findOne({
@@ -226,6 +203,18 @@ const logout = async (uuid) => {
   }
 };
 
+/**
+ * forget_password
+ * @async
+ * @method
+ * @typedef {Object} userData userDetails
+ * @property {email} email user Email  
+ * @returns {void} 
+ */
+/**
+ * 
+ * @type {userData} 
+ */
 const passwordResetMail = async (userData) => {
   try {
     const User = await _DB.user.findOne({
@@ -266,8 +255,6 @@ const passwordResetMail = async (userData) => {
               logger.info("Email sent: " + info.response);
             }
           });
-
-          return true;
         } else {
           throw new Error("Error occured while generating token");
         }
@@ -282,6 +269,14 @@ const passwordResetMail = async (userData) => {
     throw error;
   }
 };
+
+/**
+ * password reset
+ * @param {number} userId 
+ * @typedef {Object} userData
+ * @property {string} password 
+ * @returns {void}
+ */
 
 const passwordReset = async (userId, userData) => {
   try {
