@@ -34,46 +34,46 @@ const { logger } = require("../../utils/logger");
 const user_register = async (userData) => {
   const { username } = userData;
   console.log(`userData ${username}`);
-  try {
-    const users = await _DB.user.findOne({
-      where: {
-        username,
+  // try {
+  const users = await _DB.user.findOne({
+    where: {
+      username,
+    },
+  });
+  if (users) {
+    const err = new Error(constants.errors.user);
+    throw err;
+  } else {
+    const new_User = await _DB.user.create(userData);
+
+    var transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.user,
+        pass: process.env.pass,
       },
     });
-    if (users) {
-      const err = new Error(constants.errors.user);
-      throw err;
-    } else {
-      const new_User = await _DB.user.create(userData);
 
-      var transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.user,
-          pass: process.env.pass,
-        },
-      });
+    var mailOptions = {
+      from: process.env.user,
+      to: userData.email,
+      subject: "Welcome mail",
+      text: `Welcome ${username}`,
+    };
 
-      var mailOptions = {
-        from: process.env.user,
-        to: userData.email,
-        subject: "Welcome mail",
-        text: `Welcome ${username}`,
-      };
-
-      transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-          throw error;
-        } else {
-          logger.info(`Email sent: ${info.response}`);
-        }
-      });
-      return new_User;
-    }
-  } catch (err) {
-    logger.error(`err ${err}`);
-    throw err;
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        throw error;
+      } else {
+        logger.info(`Email sent: ${info.response}`);
+      }
+    });
+    return new_User;
   }
+  // } catch (err) {
+  //   logger.error(`err ${err}`);
+  //   throw err;
+  // }
 };
 
 const createSession = ({ user_id }) => {
@@ -131,49 +131,49 @@ const generateJwtToken = ({ username, admin_id, user_id }, uuid, isAdmin) => {
  * @type {userData}
  */
 const login = async ({ username, password }) => {
-  try {
-    let users = await _DB.user.findOne({
-      where: {
-        username,
-      },
-    });
+  // s
+  let users = await _DB.user.findOne({
+    where: {
+      username,
+    },
+  });
 
-    if (users) {
-      const isValidate = validatePassword(
-        password,
-        users.password.split(":")[1],
-        users.password.split(":")[0]
-      );
-      if (isValidate) {
-        const session = await createSession(users);
-        if (session) {
-          const jwt = await generateJwtToken(
-            users,
-            session.uuid,
-            session.is_admin
-          );
-          if (jwt) {
-            return jwt;
-          } else {
-            const error = new Error("error while generating jwt");
-            throw error;
-          }
+  if (users) {
+    const isValidate = validatePassword(
+      password,
+      users.password.split(":")[1],
+      users.password.split(":")[0]
+    );
+    if (isValidate) {
+      const session = await createSession(users);
+      if (session) {
+        const jwt = await generateJwtToken(
+          users,
+          session.uuid,
+          session.is_admin
+        );
+        if (jwt) {
+          return jwt;
         } else {
-          const error = new Error("error while creating session");
+          const error = new Error("error while generating jwt");
           throw error;
         }
       } else {
-        const error = new Error("you entered wrong password");
+        const error = new Error("error while creating session");
         throw error;
       }
     } else {
-      const error = new Error("user not found with this username");
+      const error = new Error("you entered wrong password");
       throw error;
     }
-  } catch (error) {
-    logger.error(error);
+  } else {
+    const error = new Error("user not found with this username");
     throw error;
   }
+  // } catch (error) {
+  //   logger.error(error);
+  //   throw error;
+  // }
 };
 /**
  * user_logout
@@ -183,24 +183,24 @@ const login = async ({ username, password }) => {
  * @returns {boolean} loginData-is_loggedOut is become true or false
  */
 const logout = async (uuid) => {
-  try {
-    const loginData = await _DB.Session.findOne({
-      where: {
-        uuid,
-      },
-    });
+  // try {
+  const loginData = await _DB.Session.findOne({
+    where: {
+      uuid,
+    },
+  });
 
-    if (loginData) {
-      await loginData.update({ is_loggedout: 1 });
-      return true;
-    } else {
-      const err = new Error(constants.errors.failedLoggingout);
-      throw err;
-    }
-  } catch (error) {
-    logger.error(`error ${error}`);
-    throw error;
+  if (loginData) {
+    await loginData.update({ is_loggedout: 1 });
+    return true;
+  } else {
+    const err = new Error(constants.errors.failedLoggingout);
+    throw err;
   }
+  // } catch (error) {
+  //   logger.error(`error ${error}`);
+  //   throw error;
+  // }
 };
 
 /**
@@ -216,59 +216,59 @@ const logout = async (uuid) => {
  * @type {userData}
  */
 const passwordResetMail = async ({ email }) => {
-  try {
-    const User = await _DB.user.findOne({
-      where: {
-        email,
-      },
-      raw: true,
-    });
-    if (User) {
-      const { user_id, username, password } = User;
-      const session = await createPasswordResetSession(user_id);
-      if (session) {
-        const token = await generatePasswordResetJwt(
-          user_id,
-          session.uuid,
-          username,
-          password
-        );
-        if (token) {
-          var transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-              user: process.env.user,
-              pass: process.env.pass,
-            },
-          });
+  // try {
+  const User = await _DB.user.findOne({
+    where: {
+      email,
+    },
+    raw: true,
+  });
+  if (User) {
+    const { user_id, username, password } = User;
+    const session = await createPasswordResetSession(user_id);
+    if (session) {
+      const token = await generatePasswordResetJwt(
+        user_id,
+        session.uuid,
+        username,
+        password
+      );
+      if (token) {
+        var transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: process.env.user,
+            pass: process.env.pass,
+          },
+        });
 
-          var mailOptions = {
-            from: process.env.user,
-            to: email,
-            subject: "Reset password mail",
-            text: `Token: ${token}`,
-          };
+        var mailOptions = {
+          from: process.env.user,
+          to: email,
+          subject: "Reset password mail",
+          text: `Token: ${token}`,
+        };
 
-          transporter.sendMail(mailOptions, function (error, info) {
-            if (error) {
-              throw error;
-            } else {
-              logger.info(`Email sent:  ${info.response}`);
-            }
-          });
-        } else {
-          throw new Error("Error occured while generating token");
-        }
+        transporter.sendMail(mailOptions, function (error, info) {
+          if (error) {
+            throw error;
+          } else {
+            logger.info(`Email sent:  ${info.response}`);
+          }
+        });
       } else {
-        throw new Error("Error occured while create session");
+        throw new Error("Error occured while generating token");
       }
     } else {
-      throw new Error("User not found with this email-id");
+      throw new Error("Error occured while create session");
     }
-  } catch (error) {
-    logger.error(`error ${error}`);
-    throw error;
+  } else {
+    throw new Error("User not found with this email-id");
   }
+  // } catch (error) {
+  //   logger.error(`error ${error}`);
+  //   throw error;
+  // }
 };
 
 /**
@@ -280,7 +280,7 @@ const passwordResetMail = async ({ email }) => {
  */
 
 const passwordReset = async (userId, { password }) => {
-  try {
+  // try {
     const findUser = await _DB.user.findOne({
       where: {
         user_id: userId,
@@ -294,10 +294,10 @@ const passwordReset = async (userId, { password }) => {
     } else {
       throw new Error("user not found");
     }
-  } catch (error) {
-    logger.error(`error ${error}`);
-    throw error;
-  }
+  // } catch (error) {
+  //   logger.error(`error ${error}`);
+  //   throw error;
+  // }
 };
 
 const createPasswordResetSession = async (userid) => {

@@ -5,6 +5,7 @@ const { Op } = require("sequelize");
 const sequelize = require("sequelize");
 const config = require("../../configuration/config");
 const { logger } = require("../../utils/logger");
+
 const createSessionAdmin = (admin) => {
   return new Promise((resolve, reject) => {
     const adminId = admin.admin_id;
@@ -126,38 +127,38 @@ const Adminlogin = ({ username, password }) => {
  * @property {number} n_tasks total tasks performed by user
  */
 
-const getAllTasks = async (startDate, endDate) => {
-  try {
-    const getAllTaskDetails = await _DB.task.findAll({
-      limit: 10,
-      offset: 0,
-      where: {
-        [Op.or]: {
-          start_date: { [Op.between]: [startDate, endDate] },
-          end_date: { [Op.between]: [startDate, endDate] },
-        },
+const getAllTasks = async ({startDate, endDate}) => {
+  // try {
+  const getAllTaskDetails = await _DB.task.findAll({
+    limit: 10,
+    offset: 0,
+    where: {
+      [Op.or]: {
+        start_date: { [Op.between]: [startDate, endDate] },
+        end_date: { [Op.between]: [startDate, endDate] },
       },
-      attributes: [[sequelize.fn("COUNT", "*"), "n_tasks"], "user.username"],
+    },
+    attributes: [[sequelize.fn("COUNT", "*"), "n_tasks"], "user.username"],
 
-      include: {
-        model: _DB.user,
-        attributes: [],
-      },
-      group: "task.user_id",
-      raw: true,
-    });
+    include: {
+      model: _DB.user,
+      attributes: [],
+    },
+    group: "task.user_id",
+    raw: true,
+  });
 
-    if (getAllTaskDetails) {
-      console.log(`getall ${getAllTaskDetails}`);
-      return getAllTaskDetails;
-    } else {
-      const error = new Error("Error while getting data");
-      throw error;
-    }
-  } catch (error) {
-    logger.error(`error ${error}`);
+  if (getAllTaskDetails) {
+    console.log(`getall ${getAllTaskDetails}`);
+    return getAllTaskDetails;
+  } else {
+    const error = new Error("Error while getting data");
     throw error;
   }
+  // } catch (error) {
+  //   logger.error(`error ${error}`);
+  //   throw error;
+  // }
 };
 /**
  * admin_logout
@@ -167,24 +168,24 @@ const getAllTasks = async (startDate, endDate) => {
  * @returns {boolean} loginData-is_loggedOut is become true or false
  */
 const logout = async (uuid) => {
-  try {
-    const loginData = await _DB.Session.findOne({
-      where: {
-        uuid,
-      },
-    });
+  // try {
+  const loginData = await _DB.Session.findOne({
+    where: {
+      uuid,
+    },
+  });
 
-    if (loginData) {
-      await loginData.update({ is_loggedout: 1 });
-      return true;
-    } else {
-      const err = new Error("error while loggedout");
-      throw err;
-    }
-  } catch (error) {
-    logger.error(`error ${error}`);
-    throw error;
+  if (loginData) {
+    await loginData.update({ is_loggedout: 1 });
+    return true;
+  } else {
+    const err = new Error("error while loggedout");
+    throw err;
   }
+  // } catch (error) {
+  //   logger.error(`error ${error}`);
+  //   throw error;
+  // }
 };
 
 module.exports = {

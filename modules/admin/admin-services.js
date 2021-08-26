@@ -53,10 +53,9 @@ const allTaskDetails = async (req, res, next) => {
       return next(error);
     }
 
-    const getAllTasks = await admin_model.getAllTasks(
-      date.start_date,
-      date.end_date
-    );
+    const { start_date, end_date } = date;
+
+    const getAllTasks = await admin_model.getAllTasks(start_date, end_date);
     res.status(constants.responseCodes.success).json({
       message: constants.responseMessage.success,
       getAllTasks,

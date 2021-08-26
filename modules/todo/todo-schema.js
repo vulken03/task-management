@@ -21,10 +21,10 @@ const getTaskSchema = {
   type: "object",
   properties: {
     start_date: {
-      type: "string",
+      type: "date-time",
     },
     end_date: {
-      type: "string",
+      type: "date-time",
     },
   },
 };

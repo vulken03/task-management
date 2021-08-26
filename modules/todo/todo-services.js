@@ -41,9 +41,9 @@ const update_tasks = async (req, res, next) => {
       return next(error);
     }
     const updateTask = await todo_model.update_task(
-      userid,
+      {userid,
       taskDetails,
-      taskid
+      taskid}
     );
 
     res.status(constants.responseCodes.success).json({
@@ -60,16 +60,17 @@ const complete_tasks = async (req, res, next) => {
   try {
     let userid = req.user.user_id;
     let taskid = req.params.id;
-    let taskDetails = {
+    // let taskDetails = {
+    //   completed_on: new Date(),
+    //   is_complete: 1,
+    // };
+
+    const completeTask = await todo_model.complete_task({
+      userid,
       completed_on: new Date(),
       is_complete: 1,
-    };
-
-    const completeTask = await todo_model.complete_task(
-      userid,
-      taskDetails,
-      taskid
-    );
+      taskid,
+    });
     res.status(constants.responseCodes.success).json({
       message: constants.responseMessage.success,
       completeTask,
@@ -84,7 +85,7 @@ const task_delete = async (req, res, next) => {
   try {
     let userid = req.user.user_id;
     let taskid = req.params.id;
-    const DeleteTask = await todo_model.delete_task(userid, taskid);
+    const DeleteTask = await todo_model.delete_task({userid, taskid});
 
     res.status(constants.responseCodes.success).json({
       message: constants.responseMessage.success,
@@ -111,9 +112,10 @@ const task_details = async (req, res, next) => {
       return next(error);
     }
 
+    const{start_date,end_date}=date
     let getAllTasks = await todo_model.getTask(
-      date.start_date,
-      date.end_date,
+      start_date,
+      end_date,
       userid
     );
 
@@ -172,11 +174,8 @@ const getTodayTask = async (req, res, next) => {
     if (!isValid) {
       return next(error);
     }
-    let getTask = await todo_model.todayTask(
-      date.start_date,
-      date.end_date,
-      userid
-    );
+    const { start_date, end_date } = date;
+    let getTask = await todo_model.todayTask(start_date, end_date, userid);
     res.status(constants.responseCodes.success).json({
       message: constants.responseMessage.success,
       getTask,
@@ -211,7 +210,7 @@ const createMultipleTasks = async (req, res, next) => {
   try {
     const userid = req.user.user_id;
     const filename = req.file.filename;
-    let allTasks = await todo_model.createMultipleTask(userid, filename);
+    let allTasks = await todo_model.createMultipleTask({ userid, filename });
     res.status(constants.responseCodes.success).json({
       message: constants.responseMessage.success,
       allTasks,
