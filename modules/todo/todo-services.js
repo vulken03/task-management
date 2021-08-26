@@ -40,11 +40,11 @@ const update_tasks = async (req, res, next) => {
     if (!isValid) {
       return next(error);
     }
-    const updateTask = await todo_model.update_task(
-      {userid,
+    const updateTask = await todo_model.update_task({
+      userid,
       taskDetails,
-      taskid}
-    );
+      taskid,
+    });
 
     res.status(constants.responseCodes.success).json({
       message: constants.responseMessage.success,
@@ -60,6 +60,7 @@ const complete_tasks = async (req, res, next) => {
   try {
     let userid = req.user.user_id;
     let taskid = req.params.id;
+
     // let taskDetails = {
     //   completed_on: new Date(),
     //   is_complete: 1,
@@ -85,7 +86,7 @@ const task_delete = async (req, res, next) => {
   try {
     let userid = req.user.user_id;
     let taskid = req.params.id;
-    const DeleteTask = await todo_model.delete_task({userid, taskid});
+    const DeleteTask = await todo_model.delete_task({ userid, taskid });
 
     res.status(constants.responseCodes.success).json({
       message: constants.responseMessage.success,
@@ -112,12 +113,8 @@ const task_details = async (req, res, next) => {
       return next(error);
     }
 
-    const{start_date,end_date}=date
-    let getAllTasks = await todo_model.getTask(
-      start_date,
-      end_date,
-      userid
-    );
+    const { start_date, end_date } = date;
+    let getAllTasks = await todo_model.getTask(start_date, end_date, userid);
 
     if (getAllTasks) {
       let tasks = [];
