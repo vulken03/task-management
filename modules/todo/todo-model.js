@@ -109,8 +109,10 @@ const update_task = async (userid, taskDetails, taskid) => {
 /**
  * @type {taskDetails}
  */
-
-const complete_task = async (userid, taskDetails, taskid) => {
+// const a = [1,2]
+// const b = [1,2]
+// const c = [...a, ...b]
+const complete_task = async ({ taskid, userid, ...taskDetails }) => {
   try {
     const taskData = await _DB.task.findOne({
       where: {
@@ -127,7 +129,7 @@ const complete_task = async (userid, taskDetails, taskid) => {
       const err = new Error("task notFound with this taskid");
       throw err;
     }
-  } catch (error) {
+  } catch (error) { // TODO: try catch block not required here, service level try catch block should handle any errors occuring in here!
     logger.error(`error ${error}`);
     throw error;
   }
@@ -241,7 +243,7 @@ const todayTask = async (startDate, endDate, userid) => {
     const TODAY_START = new Date().setHours(0, 0, 0, 0);
     const date = new Date();
     let getTaskDetails = null;
-    if (startDate && endDate) {
+    if (startDate && endDate) { // TODO: Keep your code DRY!
       getTaskDetails = await _DB.task.findAll({
         where: {
           user_id: userid,

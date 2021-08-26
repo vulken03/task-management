@@ -60,16 +60,17 @@ const complete_tasks = async (req, res, next) => {
   try {
     let userid = req.user.user_id;
     let taskid = req.params.id;
-    let taskDetails = {
+    /* let taskDetails = {
       completed_on: new Date(),
       is_complete: 1,
-    };
+    }; */
 
-    const completeTask = await todo_model.complete_task(
+    const completeTask = await todo_model.complete_task({
       userid,
-      taskDetails,
-      taskid
-    );
+      taskid,
+      completed_on: new Date(),
+      is_complete: 1,
+    });
     res.status(constants.responseCodes.success).json({
       message: constants.responseMessage.success,
       completeTask,
