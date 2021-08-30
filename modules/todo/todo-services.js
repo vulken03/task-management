@@ -207,7 +207,7 @@ const createMultipleTasks = async (req, res, next) => {
   try {
     const userid = req.user.user_id;
     const filename = req.file.filename;
-    let allTasks = await todo_model.createMultipleTask({ userid, filename });
+    let allTasks = await todo_model.createMultiTask({ userid, filename });
     res.status(constants.responseCodes.success).json({
       message: constants.responseMessage.success,
       allTasks,

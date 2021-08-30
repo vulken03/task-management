@@ -34,6 +34,7 @@
     "nodemailer": "^6.6.3",
     "nodemon": "^2.0.12",
     "path": "^0.12.7",
+    "posix": "^4.2.0",
     "read-excel-file": "^5.2.8",
     "sequelize": "^6.6.5",
     "sequelize-transforms": "^2.0.0",
