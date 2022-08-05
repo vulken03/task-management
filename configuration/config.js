@@ -23,12 +23,12 @@ const config = convict({
     name: {
       doc: 'Databse name',
       format: String,
-      default: 'todo'
+      default: 'task_management'
     },
     username: {
       doc: 'Database username',
       format: String,
-      default: 'admin'
+      default: 'root'
     },
     password: {
       doc: 'Database password',

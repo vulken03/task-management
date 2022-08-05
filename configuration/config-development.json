@@ -2,7 +2,7 @@
     "host": "localhost",
     "port": "8000",
     "database": {
-        "name": "todo",
+        "name": "task_management",
         "dialect": "mysql"
     },
     "jwt": {

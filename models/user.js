@@ -36,7 +36,7 @@ module.exports = (sequelize, Sequelize) => {
           user.password = encryptPassword(user.password);
         },
         beforeUpdate: (updatedUser) => {
-          if (updatedEmployee.password) {
+          if (updatedUser.password) {
             updatedUser.password = encryptPassword(updatedUser.password);
           }
         },

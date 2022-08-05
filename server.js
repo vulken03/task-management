@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const api = require("./routes/index");
+const api = require("./routes");
 const { errorHandler } = require("./utils/error");
 const middleware = require("./middleware");
 const { logger } = require("./utils/logger");
